@@ -333,11 +333,45 @@
     loginView.classList.remove("hidden");
   }
 
-  // Wire buttons
-  document.querySelectorAll("[data-login]").forEach(btn => {
-    btn.addEventListener("click", () => startSession(btn.dataset.login));
-  });
+const loginUser = $("loginUser");
+const loginPass = $("loginPass");
+const loginBtn = $("loginBtn");
+const loginStatus = $("loginStatus");
 
+function authenticate() {
+  const user = (loginUser.value || "").trim().toLowerCase();
+  const pass = (loginPass.value || "").trim().toLowerCase();
+
+  if (!user || !pass) {
+    loginStatus.textContent = "ERROR :: MISSING CREDENTIALS";
+    return;
+  }
+
+  // ILYA credentials
+  if (user === "ilya" && pass === "architect") {
+    loginStatus.textContent = "ACCESS GRANTED :: ILYA";
+    setTimeout(() => startSession("ilya"), 600);
+    return;
+  }
+
+  // SHANE credentials
+  if (user === "shane" && pass === "firewall") {
+    loginStatus.textContent = "ACCESS GRANTED :: SHANE";
+    setTimeout(() => startSession("shane"), 600);
+    return;
+  }
+
+  // Incorrect login
+  loginStatus.textContent = "ACCESS DENIED :: INVALID CREDENTIALS";
+  loginUser.value = "";
+  loginPass.value = "";
+}
+
+loginBtn.addEventListener("click", authenticate);
+
+loginPass.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") authenticate();
+});
   sendBtn.addEventListener("click", handleSend);
   inputEl.addEventListener("keydown", (e) => {
     if (e.key === "Enter") handleSend();
