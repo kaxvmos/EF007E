@@ -12,15 +12,27 @@
   const identityOut = $("identityOut");
   const remoteOut = $("remoteOut");
   const integrityOut = $("integrityOut");
+  const stageOut = $("stageOut");
   const statusOut = $("statusOut");
   const systemTag = $("systemTag");
   const channelTag = $("channelTag");
 
+  const filesList = $("filesList");
+  const filesHint = $("filesHint");
+  const fileTitle = $("fileTitle");
+  const fileBody = $("fileBody");
+  const closeFile = $("closeFile");
+
   let state = {
     identity: null,     // "shane" or "ilya" (who user logs in as)
     remote: null,       // "ilya" or "shane" (who they talk to)
-    mode: "normal",     // "normal" | "ix"
-    integrity: 100
+    stage: 0,           // 0=stable, 1=mild, 2=severe, 3=full (I-X)
+    integrity: 100,
+    flags: {
+      met_ilya: false,
+      derez_triggered: false
+    },
+    turnsSinceTakeover: 0
   };
 
   const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -58,24 +70,6 @@
     logEl.scrollTop = logEl.scrollHeight;
   }
 
-  function setUI() {
-    identityOut.textContent = state.identity?.toUpperCase() ?? "—";
-    remoteOut.textContent = state.mode === "ix" ? "I-X" : (state.remote?.toUpperCase() ?? "—");
-    integrityOut.textContent = `${state.integrity}%`;
-
-    channelTag.textContent = `CH: ${state.identity?.toUpperCase() ?? "—"}→${(state.mode === "ix" ? "I-X" : state.remote?.toUpperCase()) ?? "—"}`;
-
-    if (state.mode === "ix") {
-      document.body.classList.add("glitchMode");
-      systemTag.textContent = "SYSTEM :: INSTABILITY";
-      statusOut.textContent = "SIGNAL COMPROMISED";
-    } else {
-      document.body.classList.remove("glitchMode");
-      systemTag.textContent = "SYSTEM :: SECURE";
-      statusOut.textContent = "READY";
-    }
-  }
-
   function normalize(s) {
     return (s || "").toLowerCase().trim();
   }
@@ -89,58 +83,158 @@
     return rand(data.fallback);
   }
 
-  // Make text look corrupted without animation
-  function distort(text, intensity = 0.18) {
+  // corruption renderer (stronger as stage rises)
+  function distort(text, stage) {
     const junk = ["█","▒","░","■","▚","▞","╳","╱","╲","⟟","⟊","∆","⟠","⧗","⧖","⟡","⧫"];
+    const intensity = stage === 1 ? 0.08 : stage === 2 ? 0.16 : 0.26;
+
     let out = "";
     for (const ch of text) {
       if (ch === " " || ch === "\n") { out += ch; continue; }
       if (Math.random() < intensity) out += rand(junk);
       else out += ch;
     }
-    // occasional hard glitch stutter
-    if (Math.random() < 0.35) out = out.replace(/ /g, "  ");
+
+    if (stage >= 2 && Math.random() < 0.35) out = out.replace(/ /g, "  ");
+    if (stage >= 3 && Math.random() < 0.25) out = out.toUpperCase();
+
     return out;
   }
 
-  function maybeTriggerTakeover(userText) {
-    // Only possible while talking to Ilya and in normal mode
-    if (state.mode !== "normal") return false;
-    if (state.remote !== "ilya") return false;
-
-    const t = normalize(userText);
-    const triggers = window.CHAR_DATA.ilya.takeoverTriggers || [];
-    const hit = triggers.some(k => t.includes(k));
-    if (!hit) return false;
-
-    // Chance-based so it isn't guaranteed every time
-    const chance = t.includes("i-x") || t.includes("ix") ? 0.75 : 0.35;
-    return Math.random() < chance;
+  function setBodyStageClass() {
+    document.body.classList.remove("glitchStage1","glitchStage2","glitchStage3");
+    if (state.stage === 1) document.body.classList.add("glitchStage1");
+    if (state.stage === 2) document.body.classList.add("glitchStage2");
+    if (state.stage === 3) document.body.classList.add("glitchStage3");
   }
 
-  function takeover() {
-    state.mode = "ix";
-    state.integrity = Math.max(1, state.integrity - 37);
-    setUI();
+  function setUI() {
+    identityOut.textContent = state.identity?.toUpperCase() ?? "—";
 
-    // I-X barges in
-    appendMsg("SYSTEM", "⚠ CHANNEL INTEGRITY FAILURE :: ERR-IX-113");
-    appendMsg("I-X", distort(rand(window.CHAR_DATA.ix.openers), 0.08));
+    // Remote label changes when fully taken over
+    remoteOut.textContent =
+      state.stage === 3 ? "I-X" : (state.remote?.toUpperCase() ?? "—");
+
+    integrityOut.textContent = `${state.integrity}%`;
+
+    const stageLabel =
+      state.stage === 0 ? "STABLE" :
+      state.stage === 1 ? "MILD" :
+      state.stage === 2 ? "SEVERE" : "FULL";
+
+    stageOut.textContent = stageLabel;
+
+    channelTag.textContent =
+      `CH: ${state.identity?.toUpperCase() ?? "—"}→${state.stage === 3 ? "I-X" : (state.remote?.toUpperCase() ?? "—")}`;
+
+    if (state.stage === 0) {
+      systemTag.textContent = "SYSTEM :: SECURE";
+      statusOut.textContent = "READY";
+    } else if (state.stage === 1) {
+      systemTag.textContent = "SYSTEM :: DESYNC";
+      statusOut.textContent = "SIGNAL UNSTABLE";
+    } else if (state.stage === 2) {
+      systemTag.textContent = "SYSTEM :: CORRUPTION";
+      statusOut.textContent = "INTEGRITY DROPPING";
+    } else {
+      systemTag.textContent = "SYSTEM :: COMPROMISED";
+      statusOut.textContent = "CHANNEL OVERRIDDEN";
+    }
+
+    setBodyStageClass();
+    renderFiles();
   }
 
-  function maybeRecover(userText) {
-    if (state.mode !== "ix") return false;
-    const t = normalize(userText);
-    const keys = window.CHAR_DATA.ix.recoveryKeys || [];
-    if (!keys.some(k => t.includes(k))) return false;
+  // FILES
+  function isFileUnlocked(file) {
+    const u = file.unlock;
+    if (!u) return true;
+    if (u.when === "flag") return !!state.flags[u.key];
+    if (u.when === "stageAtLeast") return state.stage >= u.n;
+    return false;
+  }
 
-    // Recovery is possible but not perfect
-    state.mode = "normal";
-    state.integrity = Math.min(100, state.integrity + 22);
+  function renderFiles() {
+    const unlockedCount = window.FILES.filter(isFileUnlocked).length;
+    filesHint.textContent = unlockedCount > 0 ? `UNLOCKED: ${unlockedCount}` : "LOCKED";
+
+    filesList.innerHTML = "";
+    for (const f of window.FILES) {
+      const unlocked = isFileUnlocked(f);
+      const btn = document.createElement("button");
+      btn.className = "fileBtn" + (unlocked ? "" : " locked");
+      btn.disabled = !unlocked;
+      btn.innerHTML = `
+        <div class="fileName">${f.title}</div>
+        <div class="fileMeta">${f.blurb}</div>
+      `;
+      btn.addEventListener("click", () => openFile(f));
+      filesList.appendChild(btn);
+    }
+  }
+
+  function openFile(file) {
+    fileTitle.textContent = file.title;
+    fileBody.textContent = file.body;
+  }
+
+  function closeFileViewer() {
+    fileTitle.textContent = "—";
+    fileBody.textContent = "Select a file to view.";
+  }
+
+  closeFile.addEventListener("click", closeFileViewer);
+
+  // TAKEOVER LOGIC
+  function isTalkingToIlya() {
+    return state.remote === "ilya";
+  }
+
+  function derezTriggered(userText) {
+    if (!isTalkingToIlya()) return false;
+    if (state.flags.derez_triggered) return false; // first time only
+    const t = normalize(userText);
+    const triggers = window.CHAR_DATA.ilya.derezTriggers || [];
+    return triggers.some(k => t.includes(k));
+  }
+
+  function escalateTo(stage) {
+    state.stage = Math.max(state.stage, stage);
+    if (stage >= 1) state.turnsSinceTakeover = 0;
     setUI();
-    appendMsg("SYSTEM", "ROLLBACK COMPLETE :: CHANNEL PARTIALLY RESTORED");
-    appendMsg("ILYA", "…Did you do that? I thought I was gone for a second.");
-    return true;
+  }
+
+  function onDerezTrigger() {
+    state.flags.derez_triggered = true;
+    // Mild instability begins
+    escalateTo(1);
+    state.integrity = Math.max(55, state.integrity - 18);
+
+    appendMsg("SYSTEM", "⚠ KEYWORD EVENT :: DEREZ :: CHANNEL DESYNC");
+    appendMsg("ILYA", distort("…Stop. Please—", 1));
+    appendMsg("SYSTEM", "ERR-IX-113 :: DATA CORRUPTION DETECTED");
+    // creep-in opener from I-X (mildly distorted)
+    appendMsg("I-X", distort(rand(window.CHAR_DATA.ix.openers), 1));
+  }
+
+  function maybeAdvanceStages() {
+    if (state.stage === 0) return;
+
+    state.turnsSinceTakeover += 1;
+
+    // integrity decays over time once instability starts
+    const decay = state.stage === 1 ? 2 : state.stage === 2 ? 4 : 6;
+    state.integrity = Math.max(1, state.integrity - decay);
+
+    // timed escalation: mild -> severe -> full
+    if (state.stage === 1 && state.turnsSinceTakeover >= 3) {
+      escalateTo(2);
+      appendMsg("SYSTEM", "⚠ ESCALATION :: CORRUPTION SPREADING");
+    } else if (state.stage === 2 && state.turnsSinceTakeover >= 6) {
+      escalateTo(3);
+      appendMsg("SYSTEM", "⚠ OVERRIDE :: CHANNEL ACQUIRED");
+      appendMsg("I-X", distort("HELLO AGAIN.", 3));
+    }
   }
 
   function handleSend() {
@@ -150,28 +244,50 @@
 
     appendMsg(state.identity.toUpperCase(), text);
 
-    // If in takeover mode, allow recovery phrase
-    if (maybeRecover(text)) return;
+    // Unlock basic file just by establishing Ilya contact
+    if (isTalkingToIlya()) state.flags.met_ilya = true;
 
-    // Maybe trigger takeover while talking to Ilya
-    if (maybeTriggerTakeover(text)) {
-      // Ilya tries to respond, then gets cut off
-      const ilyaReply = matchRule("ilya", text);
-      appendMsg("ILYA", ilyaReply);
-      takeover();
-      return;
-    }
-
-    // Normal responses
-    if (state.mode === "ix") {
-      const reply = matchRule("ix", text);
-      appendMsg("I-X", distort(reply, 0.22));
-      // integrity slowly worsens while I-X is present
-      state.integrity = Math.max(1, state.integrity - (Math.random() < 0.5 ? 1 : 2));
+    // First derez mention triggers takeover start
+    if (derezTriggered(text)) {
+      onDerezTrigger();
       setUI();
       return;
     }
 
+    // If takeover has started, advance stages over time
+    if (state.stage > 0) {
+      maybeAdvanceStages();
+      setUI();
+    }
+
+    // Decide who answers
+    if (state.stage === 3) {
+      // Full takeover: I-X answers
+      const reply = matchRule("ix", text);
+      appendMsg("I-X", distort(reply, 3));
+      return;
+    }
+
+    if (state.stage === 2) {
+      // Severe: mixed responses (Ilya tries, but I-X bleeds in)
+      const ilya = matchRule("ilya", text);
+      appendMsg("ILYA", distort(ilya, 2));
+
+      if (Math.random() < 0.55) {
+        const ix = matchRule("ix", text);
+        appendMsg("I-X", distort(ix, 2));
+      }
+      return;
+    }
+
+    if (state.stage === 1) {
+      // Mild: Ilya responds but slightly corrupted
+      const ilya = matchRule("ilya", text);
+      appendMsg("ILYA", distort(ilya, 1));
+      return;
+    }
+
+    // Stable: normal remote replies
     const replyKey = state.remote; // "shane" or "ilya"
     const reply = matchRule(replyKey, text);
     appendMsg(window.CHAR_DATA[replyKey].name, reply);
@@ -180,18 +296,19 @@
   function startSession(loginAs) {
     state.identity = loginAs; // "shane" or "ilya"
     state.remote = loginAs === "shane" ? "ilya" : "shane";
-    state.mode = "normal";
+    state.stage = 0;
     state.integrity = 100;
+    state.flags = { met_ilya: false, derez_triggered: false };
+    state.turnsSinceTakeover = 0;
 
-    // Switch views
     loginView.classList.add("hidden");
     chatView.classList.remove("hidden");
 
-    // Clear log and greet
     logEl.innerHTML = "";
+    closeFileViewer();
     setUI();
-    appendMsg("SYSTEM", `SECURE CHANNEL ESTABLISHED :: ${state.identity.toUpperCase()} → ${state.remote.toUpperCase()}`);
 
+    appendMsg("SYSTEM", `SECURE CHANNEL ESTABLISHED :: ${state.identity.toUpperCase()} → ${state.remote.toUpperCase()}`);
     const opener = rand(window.CHAR_DATA[state.remote].openers);
     appendMsg(window.CHAR_DATA[state.remote].name, opener);
 
@@ -199,10 +316,19 @@
   }
 
   function resetSession() {
-    // back to login
-    state = { identity:null, remote:null, mode:"normal", integrity:100 };
+    state = {
+      identity: null,
+      remote: null,
+      stage: 0,
+      integrity: 100,
+      flags: { met_ilya: false, derez_triggered: false },
+      turnsSinceTakeover: 0
+    };
+
     setUI();
     logEl.innerHTML = "";
+    closeFileViewer();
+
     chatView.classList.add("hidden");
     loginView.classList.remove("hidden");
   }
@@ -218,6 +344,6 @@
   });
   resetBtn.addEventListener("click", resetSession);
 
-  // initial UI
+  // initial
   setUI();
 })();
