@@ -10,26 +10,29 @@
   <main class="shell">
     <!-- LOGIN -->
     <section id="loginView" class="panel">
-      <div class="panelHeader">
-        <div class="tag">SYSTEM :: AUTH</div>
-        <div class="tag dim">GRID_NET</div>
-      </div>
+     <div class="panelHeader">
+  <div class="tag">SYSTEM :: AUTH</div>
+  <div class="tag dim">GRID_NET</div>
+</div>
 
-      <h1 class="title">ACCESS TERMINAL</h1>
-      <p class="sub">Log in to initiate a secure channel.</p>
+<h1 class="title">SECURE TERMINAL ACCESS</h1>
+<p class="sub">Enter credentials to establish a channel.</p>
 
-      <div class="loginBox">
-        <div class="fieldLabel">LOGIN AS</div>
-        <div class="loginRow">
-          <button class="btn" data-login="shane">SHANE</button>
-          <button class="btn" data-login="ilya">ILYA</button>
-        </div>
+<div class="loginBox">
+  <div class="fieldLabel">USERNAME</div>
+  <input id="loginUser" class="input" type="text" autocomplete="off" />
 
-        <div class="hint">
-          <div class="dim">Login identity determines who answers.</div>
-          <div class="dim">SHANE → ILYA channel. ILYA → SHANE channel.</div>
-        </div>
-      </div>
+  <div class="fieldLabel" style="margin-top:12px;">PASSWORD</div>
+  <input id="loginPass" class="input" type="password" autocomplete="off" />
+
+  <div style="margin-top:16px;">
+    <button id="loginBtn" class="btn">AUTHENTICATE</button>
+  </div>
+
+  <div id="loginStatus" class="dim smallText" style="margin-top:12px;">
+    AWAITING INPUT…
+  </div>
+</div>
     </section>
 
     <!-- CHAT -->
