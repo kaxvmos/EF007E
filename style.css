@@ -75,12 +75,6 @@ body{
   margin-bottom: 10px;
 }
 
-.loginRow{
-  display:flex;
-  flex-wrap:wrap;
-  gap: 10px;
-}
-
 .btn{
   background: transparent;
   color: var(--cyan);
@@ -221,17 +215,15 @@ body{
   white-space: pre-wrap;
 }
 
-/* --- Escalating GLITCH (I-X takeover stages) --- */
+/* --- Escalating GLITCH STAGES --- */
 .glitchStage1 .panel{
   border-color: rgba(140,0,0,.55);
   box-shadow: 0 0 16px rgba(140,0,0,.18);
 }
-
 .glitchStage2 .panel{
   border-color: rgba(140,0,0,.75);
   box-shadow: 0 0 18px rgba(140,0,0,.28);
 }
-
 .glitchStage3 .panel{
   border-color: rgba(140,0,0,.95);
   box-shadow: 0 0 22px rgba(140,0,0,.40);
@@ -257,14 +249,14 @@ body{
      0 0 10px rgba(255,255,255,.12);
 }
 
-.glitchStage1 .msg{ border-left-color: rgba(140,0,0,.22); }
-.glitchStage2 .msg{ border-left-color: rgba(140,0,0,.32); }
-.glitchStage3 .msg{ border-left-color: rgba(140,0,0,.42); }
-
 .glitchStage2 .input,
 .glitchStage3 .input{
   border-color: rgba(140,0,0,.55);
 }
+
+.glitchStage1 .msg{ border-left-color: rgba(140,0,0,.22); }
+.glitchStage2 .msg{ border-left-color: rgba(140,0,0,.32); }
+.glitchStage3 .msg{ border-left-color: rgba(140,0,0,.42); }
 
 @media (max-width: 860px){
   .layout{ grid-template-columns: 1fr; }
