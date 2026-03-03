@@ -198,7 +198,40 @@ rebooted: false
   }
 
   closeFile.addEventListener("click", closeFileViewer);
+function isShaneIdentity() {
+  return state.identity === "shane";
+}
 
+function noteStayIfPresent(userText) {
+  if (!isShaneIdentity()) return;
+  const t = normalize(userText);
+
+  const stayPhrases = [
+    "im here", "i'm here",
+    "not leaving", "i'm not leaving", "im not leaving",
+    "stay with me",
+    "i won't let go", "i wont let go",
+    "stay"
+  ];
+
+  if (stayPhrases.some(p => t.includes(p))) {
+    state.flags.shane_stayed = true;
+  }
+}
+
+function noteEscapePressure(userText) {
+  const t = normalize(userText);
+  const escapeKeys = ["escape", "exit", "leave", "portal", "real world", "out of here"];
+  if (escapeKeys.some(k => t.includes(k))) {
+    state.escape_attempts += 1;
+
+    // If they push escape too hard too early, disqualify the bridge
+    // (tune thresholds to taste)
+    if (state.integrity > 10 && state.escape_attempts >= 4) {
+      state.flags.disqualified = true;
+    }
+  }
+}
   // TAKEOVER LOGIC
   function isTalkingToIlya() {
     return state.remote === "ilya";
