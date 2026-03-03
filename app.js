@@ -1,14 +1,23 @@
-// app.js
 (() => {
   const $ = (id) => document.getElementById(id);
 
+  // Views
   const loginView = $("loginView");
   const chatView = $("chatView");
+
+  // Login UI
+  const loginUser = $("loginUser");
+  const loginPass = $("loginPass");
+  const loginBtn = $("loginBtn");
+  const loginStatus = $("loginStatus");
+
+  // Chat UI
   const logEl = $("log");
   const inputEl = $("input");
   const sendBtn = $("send");
   const resetBtn = $("reset");
 
+  // HUD UI
   const identityOut = $("identityOut");
   const remoteOut = $("remoteOut");
   const integrityOut = $("integrityOut");
@@ -17,6 +26,7 @@
   const systemTag = $("systemTag");
   const channelTag = $("channelTag");
 
+  // Files UI
   const filesList = $("filesList");
   const filesHint = $("filesHint");
   const fileTitle = $("fileTitle");
@@ -24,32 +34,34 @@
   const closeFile = $("closeFile");
 
   let state = {
-    identity: null,     // "shane" or "ilya" (who user logs in as)
-    remote: null,       // "ilya" or "shane" (who they talk to)
-    stage: 0,           // 0=stable, 1=mild, 2=severe, 3=full (I-X)
+    identity: null,      // "shane" or "ilya"
+    remote: null,        // who they talk to ("ilya" or "shane")
+    stage: 0,            // 0 stable, 1 mild, 2 severe, 3 full takeover
     integrity: 100,
-flags: {
-  met_ilya: false,
-  derez_triggered: false,
+    turnsSinceTakeover: 0,
+    escape_attempts: 0,
+    rebooted: false,
 
-  // NEW (lock conditions)
-  shane_stayed: false,
-  ilya_tried: false,
-  reader_understood: false,
-  disqualified: false,
-  bridge_created: false,
+    flags: {
+      met_ilya: false,
+      derez_triggered: false,
 
-  // NEW (post-reboot one-time lines)
-  anomaly_logged: false,
-  ix_dismissed: false
-},
-escape_attempts: 0,
-rebooted: false
-    },
-    turnsSinceTakeover: 0
+      shane_stayed: false,
+      ilya_tried: false,
+      reader_understood: false,
+      disqualified: false,
+      bridge_created: false,
+
+      anomaly_logged: false,
+      ix_dismissed: false
+    }
   };
 
   const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+  function normalize(s) {
+    return (s || "").toLowerCase().trim();
+  }
 
   function nowStamp() {
     const d = new Date();
@@ -84,10 +96,6 @@ rebooted: false
     logEl.scrollTop = logEl.scrollHeight;
   }
 
-  function normalize(s) {
-    return (s || "").toLowerCase().trim();
-  }
-
   function matchRule(characterKey, userText) {
     const data = window.CHAR_DATA[characterKey];
     const t = normalize(userText);
@@ -97,10 +105,9 @@ rebooted: false
     return rand(data.fallback);
   }
 
-  // corruption renderer (stronger as stage rises)
   function distort(text, stage) {
     const junk = ["█","▒","░","■","▚","▞","╳","╱","╲","⟟","⟊","∆","⟠","⧗","⧖","⟡","⧫"];
-    const intensity = stage === 1 ? 0.08 : stage === 2 ? 0.16 : 0.26;
+    const intensity = stage === 1 ? 0.08 : stage === 2 ? 0.16 : 0.24;
 
     let out = "";
     for (const ch of text) {
@@ -109,8 +116,8 @@ rebooted: false
       else out += ch;
     }
 
-    if (stage >= 2 && Math.random() < 0.35) out = out.replace(/ /g, "  ");
-    if (stage >= 3 && Math.random() < 0.25) out = out.toUpperCase();
+    if (stage >= 2 && Math.random() < 0.30) out = out.replace(/ /g, "  ");
+    if (stage >= 3 && Math.random() < 0.22) out = out.toUpperCase();
 
     return out;
   }
@@ -124,11 +131,7 @@ rebooted: false
 
   function setUI() {
     identityOut.textContent = state.identity?.toUpperCase() ?? "—";
-
-    // Remote label changes when fully taken over
-    remoteOut.textContent =
-      state.stage === 3 ? "I-X" : (state.remote?.toUpperCase() ?? "—");
-
+    remoteOut.textContent = state.stage === 3 ? "I-X" : (state.remote?.toUpperCase() ?? "—");
     integrityOut.textContent = `${state.integrity}%`;
 
     const stageLabel =
@@ -159,25 +162,31 @@ rebooted: false
     renderFiles();
   }
 
+  // -----------------
   // FILES
+  // -----------------
   function isFileUnlocked(file) {
     const u = file.unlock;
     if (!u) return true;
+
+    // phase_two.bridge only shows after reboot
+    if (file.id === "phase_two_bridge" && !state.rebooted) return false;
+
     if (u.when === "flag") return !!state.flags[u.key];
     if (u.when === "stageAtLeast") return state.stage >= u.n;
     return false;
   }
 
   function renderFiles() {
-    const unlockedCount = window.FILES.filter(isFileUnlocked).length;
-    filesHint.textContent = unlockedCount > 0 ? `UNLOCKED: ${unlockedCount}` : "LOCKED";
+    const unlocked = window.FILES.filter(isFileUnlocked);
+    filesHint.textContent = unlocked.length ? `UNLOCKED: ${unlocked.length}` : "LOCKED";
 
     filesList.innerHTML = "";
     for (const f of window.FILES) {
-      const unlocked = isFileUnlocked(f);
+      const ok = isFileUnlocked(f);
       const btn = document.createElement("button");
-      btn.className = "fileBtn" + (unlocked ? "" : " locked");
-      btn.disabled = !unlocked;
+      btn.className = "fileBtn" + (ok ? "" : " locked");
+      btn.disabled = !ok;
       btn.innerHTML = `
         <div class="fileName">${f.title}</div>
         <div class="fileMeta">${f.blurb}</div>
@@ -187,17 +196,17 @@ rebooted: false
     }
   }
 
-function openFile(file) {
-  fileTitle.textContent = file.title;
-  fileBody.textContent = file.body;
+  function openFile(file) {
+    fileTitle.textContent = file.title;
+    fileBody.textContent = file.body;
 
-  // NEW: reader must open at least one Architect-related file
-  const t = (file.title || "").toLowerCase();
-  if (t.includes("architect") || t.includes("ilya") || t.includes("build") || t.includes("casefile")) {
-    state.flags.reader_understood = true;
-    setUI();
+    // Reader-understood condition: opened architect-ish file
+    const t = (file.title || "").toLowerCase();
+    if (t.includes("architect") || t.includes("ilya") || t.includes("casefile") || t.includes("circuit")) {
+      state.flags.reader_understood = true;
+      setUI();
+    }
   }
-}
 
   function closeFileViewer() {
     fileTitle.textContent = "—";
@@ -205,45 +214,64 @@ function openFile(file) {
   }
 
   closeFile.addEventListener("click", closeFileViewer);
-function isShaneIdentity() {
-  return state.identity === "shane";
-}
 
-function noteStayIfPresent(userText) {
-  if (!isShaneIdentity()) return;
-  const t = normalize(userText);
-
-  const stayPhrases = [
-    "im here", "i'm here",
-    "not leaving", "i'm not leaving", "im not leaving",
-    "stay with me",
-    "i won't let go", "i wont let go",
-    "stay"
-  ];
-
-  if (stayPhrases.some(p => t.includes(p))) {
-    state.flags.shane_stayed = true;
+  // -----------------
+  // LOCK CONDITIONS TRACKING
+  // -----------------
+  function isShaneIdentity() {
+    return state.identity === "shane";
   }
-}
 
-function noteEscapePressure(userText) {
-  const t = normalize(userText);
-  const escapeKeys = ["escape", "exit", "leave", "portal", "real world", "out of here"];
-  if (escapeKeys.some(k => t.includes(k))) {
-    state.escape_attempts += 1;
-
-    // If they push escape too hard too early, disqualify the bridge
-    // (tune thresholds to taste)
-    if (state.integrity > 10 && state.escape_attempts >= 4) {
-      state.flags.disqualified = true;
-    }
-  }
-}
-  // TAKEOVER LOGIC
   function isTalkingToIlya() {
     return state.remote === "ilya";
   }
 
+  function noteStayIfPresent(userText) {
+    if (!isShaneIdentity()) return;
+    const t = normalize(userText);
+
+    const stayPhrases = [
+      "im here", "i'm here",
+      "not leaving", "i'm not leaving", "im not leaving",
+      "stay with me",
+      "i won't let go", "i wont let go",
+      "stay"
+    ];
+
+    if (stayPhrases.some(p => t.includes(p))) {
+      state.flags.shane_stayed = true;
+    }
+  }
+
+  function noteEscapePressure(userText) {
+    const t = normalize(userText);
+    const escapeKeys = ["escape", "exit", "leave", "portal", "real world", "out of here"];
+    if (escapeKeys.some(k => t.includes(k))) {
+      state.escape_attempts += 1;
+
+      // Disqualify if they push escape too hard while still relatively "safe"
+      if (state.integrity > 10 && state.escape_attempts >= 4) {
+        state.flags.disqualified = true;
+      }
+    }
+  }
+
+  function maybeIlyaApologyFragment() {
+    if (!isTalkingToIlya()) return;
+    if (state.stage < 2) return;
+    if (state.flags.ilya_tried) return;
+
+    // Not too rare; we want this to happen in most runs
+    if (Math.random() < 0.35) {
+      state.flags.ilya_tried = true;
+      appendMsg("ILYA", distort("Shane— I’m s—", Math.min(state.stage, 3)));
+      appendMsg("SYSTEM", "INTERRUPTION SUPPRESSED");
+    }
+  }
+
+  // -----------------
+  // TAKEOVER / ENV REWRITE
+  // -----------------
   function derezTriggered(userText) {
     if (!isTalkingToIlya()) return false;
     if (state.flags.derez_triggered) return false; // first time only
@@ -252,45 +280,89 @@ function noteEscapePressure(userText) {
     return triggers.some(k => t.includes(k));
   }
 
-  function escalateTo(stage) {
-    state.stage = Math.max(state.stage, stage);
-    if (stage >= 1) state.turnsSinceTakeover = 0;
+  function escalateTo(n) {
+    state.stage = Math.max(state.stage, n);
+    if (n >= 1) state.turnsSinceTakeover = 0;
     setUI();
   }
 
   function onDerezTrigger() {
     state.flags.derez_triggered = true;
-    // Mild instability begins
+    state.flags.met_ilya = true; // already true if talking to Ilya, but safe
     escalateTo(1);
+
     state.integrity = Math.max(55, state.integrity - 18);
 
-    appendMsg("SYSTEM", "⚠ KEYWORD EVENT :: DEREZ :: CHANNEL DESYNC");
-    appendMsg("ILYA", distort("…Stop. Please—", 1));
+    appendMsg("SYSTEM", "KEYWORD EVENT :: DEREZ :: CHANNEL DESYNC");
+    appendMsg("SYSTEM", "ADMIN PRESENCE: ACTIVE");
+    appendMsg("ILYA", distort("…No—", 1));
     appendMsg("SYSTEM", "ERR-IX-113 :: DATA CORRUPTION DETECTED");
-    // creep-in opener from I-X (mildly distorted)
     appendMsg("I-X", distort(rand(window.CHAR_DATA.ix.openers), 1));
   }
 
-  function maybeAdvanceStages() {
+  function maybeAdvanceStagesAndRewrite() {
     if (state.stage === 0) return;
 
     state.turnsSinceTakeover += 1;
 
-    // integrity decays over time once instability starts
+    // integrity decay
     const decay = state.stage === 1 ? 2 : state.stage === 2 ? 4 : 6;
     state.integrity = Math.max(1, state.integrity - decay);
 
-    // timed escalation: mild -> severe -> full
+    // staged escalation (time-based, but feels authored)
     if (state.stage === 1 && state.turnsSinceTakeover >= 3) {
       escalateTo(2);
-      appendMsg("SYSTEM", "⚠ ESCALATION :: CORRUPTION SPREADING");
+      appendMsg("SYSTEM", "ESCALATION :: CORRUPTION SPREADING");
+      appendMsg("I-X", distort("Shifting from host control to environmental rewrite.", 2));
     } else if (state.stage === 2 && state.turnsSinceTakeover >= 6) {
       escalateTo(3);
-      appendMsg("SYSTEM", "⚠ OVERRIDE :: CHANNEL ACQUIRED");
-      appendMsg("I-X", distort("HELLO AGAIN.", 3));
+      appendMsg("SYSTEM", "OVERRIDE :: CHANNEL ACQUIRED");
+      appendMsg("I-X", distort("Root environment prioritized. Host suppression reduced.", 3));
     }
   }
 
+  // -----------------
+  // REBOOT + HIDDEN FILE CREATION
+  // -----------------
+  function checkForReboot() {
+    if (state.rebooted) return;
+    if (state.integrity > 1) return;
+
+    const eligible =
+      state.flags.shane_stayed &&
+      state.flags.ilya_tried &&
+      state.flags.reader_understood &&
+      !state.flags.disqualified;
+
+    state.flags.bridge_created = !!eligible;
+
+    // "Hard reboot": wipe chat, reset stability, but keep flags
+    state.rebooted = true;
+    state.stage = 0;
+    state.integrity = 100;
+
+    logEl.innerHTML = "";
+    closeFileViewer();
+
+    // Silent anomaly flag (D)
+    appendMsg("SYSTEM", "Integrity 100%");
+    appendMsg("SYSTEM", "Optimization routines active.");
+    appendMsg("SYSTEM", "Anomaly detected.");
+    appendMsg("SYSTEM", "Classification pending.");
+    state.flags.anomaly_logged = true;
+
+    // I-X dismissive classification (only if bridge exists)
+    if (state.flags.bridge_created && !state.flags.ix_dismissed) {
+      appendMsg("I-X", "Non-executable structure detected. No operational impact. Ignoring.");
+      state.flags.ix_dismissed = true;
+    }
+
+    setUI();
+  }
+
+  // -----------------
+  // CHAT FLOW
+  // -----------------
   function handleSend() {
     const text = inputEl.value;
     if (!text.trim()) return;
@@ -298,32 +370,38 @@ function noteEscapePressure(userText) {
 
     appendMsg(state.identity.toUpperCase(), text);
 
-    // Unlock basic file just by establishing Ilya contact
+    // track hidden conditions
+    noteStayIfPresent(text);
+    noteEscapePressure(text);
+
+    // met Ilya
     if (isTalkingToIlya()) state.flags.met_ilya = true;
 
-    // First derez mention triggers takeover start
+    // first derez mention triggers takeover start
     if (derezTriggered(text)) {
       onDerezTrigger();
       setUI();
       return;
     }
 
-    // If takeover has started, advance stages over time
+    // if takeover started, advance stages + decay
     if (state.stage > 0) {
-      maybeAdvanceStages();
+      maybeAdvanceStagesAndRewrite();
+      maybeIlyaApologyFragment();
       setUI();
     }
 
     // Decide who answers
     if (state.stage === 3) {
-      // Full takeover: I-X answers
+      // Full takeover: I-X answers; Ilya fragments may appear via apology fragment mechanic only
       const reply = matchRule("ix", text);
       appendMsg("I-X", distort(reply, 3));
+      checkForReboot();
       return;
     }
 
     if (state.stage === 2) {
-      // Severe: mixed responses (Ilya tries, but I-X bleeds in)
+      // Severe: Ilya tries, I-X bleeds in
       const ilya = matchRule("ilya", text);
       appendMsg("ILYA", distort(ilya, 2));
 
@@ -331,37 +409,60 @@ function noteEscapePressure(userText) {
         const ix = matchRule("ix", text);
         appendMsg("I-X", distort(ix, 2));
       }
+
+      checkForReboot();
       return;
     }
 
     if (state.stage === 1) {
-      // Mild: Ilya responds but slightly corrupted
+      // Mild: Ilya answers but corrupted
       const ilya = matchRule("ilya", text);
       appendMsg("ILYA", distort(ilya, 1));
+      checkForReboot();
       return;
     }
 
-    // Stable: normal remote replies
-    const replyKey = state.remote; // "shane" or "ilya"
+    // Stable remote replies
+    const replyKey = state.remote;
     const reply = matchRule(replyKey, text);
     appendMsg(window.CHAR_DATA[replyKey].name, reply);
+
+    checkForReboot();
   }
 
+  // -----------------
+  // SESSION START / RESET
+  // -----------------
   function startSession(loginAs) {
-    state.identity = loginAs; // "shane" or "ilya"
+    state.identity = loginAs;
     state.remote = loginAs === "shane" ? "ilya" : "shane";
     state.stage = 0;
     state.integrity = 100;
-    state.flags = { met_ilya: false, derez_triggered: false };
     state.turnsSinceTakeover = 0;
+    state.escape_attempts = 0;
+    state.rebooted = false;
+
+    state.flags = {
+      met_ilya: false,
+      derez_triggered: false,
+
+      shane_stayed: false,
+      ilya_tried: false,
+      reader_understood: false,
+      disqualified: false,
+      bridge_created: false,
+
+      anomaly_logged: false,
+      ix_dismissed: false
+    };
 
     loginView.classList.add("hidden");
     chatView.classList.remove("hidden");
 
     logEl.innerHTML = "";
     closeFileViewer();
-    setUI();
 
+    setUI();
     appendMsg("SYSTEM", `SECURE CHANNEL ESTABLISHED :: ${state.identity.toUpperCase()} → ${state.remote.toUpperCase()}`);
     const opener = rand(window.CHAR_DATA[state.remote].openers);
     appendMsg(window.CHAR_DATA[state.remote].name, opener);
@@ -370,68 +471,86 @@ function noteEscapePressure(userText) {
   }
 
   function resetSession() {
+    // Back to login
     state = {
       identity: null,
       remote: null,
       stage: 0,
       integrity: 100,
-      flags: { met_ilya: false, derez_triggered: false },
-      turnsSinceTakeover: 0
+      turnsSinceTakeover: 0,
+      escape_attempts: 0,
+      rebooted: false,
+      flags: {
+        met_ilya: false,
+        derez_triggered: false,
+
+        shane_stayed: false,
+        ilya_tried: false,
+        reader_understood: false,
+        disqualified: false,
+        bridge_created: false,
+
+        anomaly_logged: false,
+        ix_dismissed: false
+      }
     };
 
-    setUI();
     logEl.innerHTML = "";
     closeFileViewer();
+    setUI();
 
     chatView.classList.add("hidden");
     loginView.classList.remove("hidden");
+
+    loginUser.value = "";
+    loginPass.value = "";
+    loginStatus.textContent = "AWAITING INPUT…";
   }
 
-const loginUser = $("loginUser");
-const loginPass = $("loginPass");
-const loginBtn = $("loginBtn");
-const loginStatus = $("loginStatus");
+  // -----------------
+  // AUTH
+  // -----------------
+  function authenticate() {
+    const user = normalize(loginUser.value);
+    const pass = normalize(loginPass.value);
 
-function authenticate() {
-  const user = (loginUser.value || "").trim().toLowerCase();
-  const pass = (loginPass.value || "").trim().toLowerCase();
+    if (!user || !pass) {
+      loginStatus.textContent = "ERROR :: MISSING CREDENTIALS";
+      return;
+    }
 
-  if (!user || !pass) {
-    loginStatus.textContent = "ERROR :: MISSING CREDENTIALS";
-    return;
+    if (user === "ilya" && pass === "architect") {
+      loginStatus.textContent = "ACCESS GRANTED :: ILYA";
+      setTimeout(() => startSession("ilya"), 500);
+      return;
+    }
+
+    if (user === "shane" && pass === "firewall") {
+      loginStatus.textContent = "ACCESS GRANTED :: SHANE";
+      setTimeout(() => startSession("shane"), 500);
+      return;
+    }
+
+    loginStatus.textContent = "ACCESS DENIED :: INVALID CREDENTIALS";
+    loginUser.value = "";
+    loginPass.value = "";
   }
 
-  // ILYA credentials
-  if (user === "ilya" && pass === "architect") {
-    loginStatus.textContent = "ACCESS GRANTED :: ILYA";
-    setTimeout(() => startSession("ilya"), 600);
-    return;
-  }
+  // -----------------
+  // EVENTS
+  // -----------------
+  loginBtn.addEventListener("click", authenticate);
+  loginPass.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") authenticate();
+  });
 
-  // SHANE credentials
-  if (user === "shane" && pass === "firewall") {
-    loginStatus.textContent = "ACCESS GRANTED :: SHANE";
-    setTimeout(() => startSession("shane"), 600);
-    return;
-  }
-
-  // Incorrect login
-  loginStatus.textContent = "ACCESS DENIED :: INVALID CREDENTIALS";
-  loginUser.value = "";
-  loginPass.value = "";
-}
-
-loginBtn.addEventListener("click", authenticate);
-
-loginPass.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") authenticate();
-});
   sendBtn.addEventListener("click", handleSend);
   inputEl.addEventListener("keydown", (e) => {
     if (e.key === "Enter") handleSend();
   });
+
   resetBtn.addEventListener("click", resetSession);
 
-  // initial
+  // Initial
   setUI();
 })();
