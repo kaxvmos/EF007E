@@ -8,7 +8,7 @@
   --warn:#ff3b3b;
   --cold:#e6f0ff;
 
-  --panelMax: 900px;
+  --panelMax: 980px;
 }
 
 *{ box-sizing:border-box; }
@@ -38,9 +38,9 @@ body{
 
 .panelHeader{
   display:flex;
-  gap:10px;
   flex-wrap:wrap;
   margin-bottom: 10px;
+  gap: 10px;
 }
 
 .tag{
@@ -77,8 +77,8 @@ body{
 
 .loginRow{
   display:flex;
+  flex-wrap:wrap;
   gap: 10px;
-  flex-wrap: wrap;
 }
 
 .btn{
@@ -99,8 +99,8 @@ body{
 
 .hudBar{
   display:flex;
-  gap: 14px;
   flex-wrap:wrap;
+  gap: 14px;
   border-top: 1px solid rgba(0,229,255,.35);
   border-bottom: 1px solid rgba(0,229,255,.35);
   padding: 10px 0;
@@ -109,6 +109,13 @@ body{
 .hudItem{ font-size: 12px; }
 .hudLabel{ opacity:.75; letter-spacing:.08em; }
 .hudValue{ color: var(--cyan); font-weight:bold; }
+
+/* layout with files */
+.layout{
+  display:grid;
+  grid-template-columns: 1fr 300px;
+  gap: 14px;
+}
 
 .log{
   min-height: 340px;
@@ -150,19 +157,99 @@ body{
   margin-top: 12px;
 }
 
-/* --- GLITCH MODE (I-X takeover) --- */
-.glitchMode .panel{
-  border-color: rgba(140,0,0,.85);
-  box-shadow: 0 0 18px rgba(140,0,0,.35);
+/* Files panel */
+.files{
+  border: 1px solid rgba(0,229,255,.35);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(0,0,0,.18);
+  min-height: 340px;
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.glitchMode .tag{
-  border-color: rgba(140,0,0,.85);
+.filesHeader{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap: 10px;
+}
+
+.filesList{
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.fileBtn{
+  text-align:left;
+  width:100%;
+  padding: 10px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,229,255,.35);
+  background: rgba(0,0,0,.25);
+  color: var(--text);
+  cursor:pointer;
+}
+.fileBtn:hover{ box-shadow: 0 0 10px rgba(0,229,255,.16); }
+.fileBtn.locked{ opacity:.55; cursor:not-allowed; }
+.fileBtn .fileName{ color: var(--cyan); font-weight:bold; }
+.fileBtn .fileMeta{ font-size: 12px; opacity:.75; margin-top: 2px; }
+
+.fileViewerWrap{
+  margin-top:auto;
+  border-top: 1px solid rgba(0,229,255,.25);
+  padding-top: 10px;
+}
+.fileViewerHeader{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom: 8px;
+}
+.fileBody{
+  margin:0;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,229,255,.25);
+  background: rgba(0,0,0,.25);
+  max-height: 220px;
+  overflow:auto;
+  white-space: pre-wrap;
+}
+
+/* --- Escalating GLITCH (I-X takeover stages) --- */
+.glitchStage1 .panel{
+  border-color: rgba(140,0,0,.55);
+  box-shadow: 0 0 16px rgba(140,0,0,.18);
+}
+
+.glitchStage2 .panel{
+  border-color: rgba(140,0,0,.75);
+  box-shadow: 0 0 18px rgba(140,0,0,.28);
+}
+
+.glitchStage3 .panel{
+  border-color: rgba(140,0,0,.95);
+  box-shadow: 0 0 22px rgba(140,0,0,.40);
+}
+
+.glitchStage1 .tag,
+.glitchStage2 .tag,
+.glitchStage3 .tag{
+  border-color: rgba(140,0,0,.75);
   color: rgba(255,80,80,.95);
 }
 
-.glitchMode .hudValue,
-.glitchMode .who{
+.glitchStage1 .hudValue,
+.glitchStage2 .hudValue,
+.glitchStage3 .hudValue,
+.glitchStage1 .who,
+.glitchStage2 .who,
+.glitchStage3 .who{
   color: var(--cold);
   text-shadow:
     -1px 0 rgba(140,0,0,.85),
@@ -170,12 +257,17 @@ body{
      0 0 10px rgba(255,255,255,.12);
 }
 
-.glitchMode .msg{
-  border-left-color: rgba(140,0,0,.35);
+.glitchStage1 .msg{ border-left-color: rgba(140,0,0,.22); }
+.glitchStage2 .msg{ border-left-color: rgba(140,0,0,.32); }
+.glitchStage3 .msg{ border-left-color: rgba(140,0,0,.42); }
+
+.glitchStage2 .input,
+.glitchStage3 .input{
+  border-color: rgba(140,0,0,.55);
 }
 
-.glitchMode .input{
-  border-color: rgba(140,0,0,.55);
+@media (max-width: 860px){
+  .layout{ grid-template-columns: 1fr; }
 }
 
 @media (max-width: 520px){
