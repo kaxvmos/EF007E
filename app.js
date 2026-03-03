@@ -28,9 +28,23 @@
     remote: null,       // "ilya" or "shane" (who they talk to)
     stage: 0,           // 0=stable, 1=mild, 2=severe, 3=full (I-X)
     integrity: 100,
-    flags: {
-      met_ilya: false,
-      derez_triggered: false
+flags: {
+  met_ilya: false,
+  derez_triggered: false,
+
+  // NEW (lock conditions)
+  shane_stayed: false,
+  ilya_tried: false,
+  reader_understood: false,
+  disqualified: false,
+  bridge_created: false,
+
+  // NEW (post-reboot one-time lines)
+  anomaly_logged: false,
+  ix_dismissed: false
+},
+escape_attempts: 0,
+rebooted: false
     },
     turnsSinceTakeover: 0
   };
