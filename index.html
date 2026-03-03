@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GRID TERMINAL</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="shell">
+    <!-- LOGIN -->
+    <section id="loginView" class="panel">
+      <div class="panelHeader">
+        <div class="tag">SYSTEM :: AUTH</div>
+        <div class="tag dim">GRID_NET</div>
+      </div>
+
+      <h1 class="title">ACCESS TERMINAL</h1>
+      <p class="sub">Log in to initiate a secure channel.</p>
+
+      <div class="loginBox">
+        <div class="fieldLabel">LOGIN AS</div>
+        <div class="loginRow">
+          <button class="btn" data-login="shane">SHANE</button>
+          <button class="btn" data-login="ilya">ILYA</button>
+        </div>
+
+        <div class="hint">
+          <div class="dim">Note:</div>
+          <div class="dim">Login identity determines who answers.</div>
+          <div class="dim">SHANE → ILYA channel. ILYA → SHANE channel.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHAT -->
+    <section id="chatView" class="panel hidden" aria-live="polite">
+      <div class="panelHeader">
+        <div class="tag" id="systemTag">SYSTEM :: SECURE</div>
+        <div class="tag dim" id="channelTag">CH: —</div>
+      </div>
+
+      <div class="hudBar">
+        <div class="hudItem"><span class="hudLabel">IDENTITY</span> <span class="hudValue" id="identityOut">—</span></div>
+        <div class="hudItem"><span class="hudLabel">REMOTE</span> <span class="hudValue" id="remoteOut">—</span></div>
+        <div class="hudItem"><span class="hudLabel">INTEGRITY</span> <span class="hudValue" id="integrityOut">100%</span></div>
+      </div>
+
+      <div id="log" class="log" role="log" aria-label="Chat log"></div>
+
+      <div class="composer">
+        <input id="input" class="input" type="text" autocomplete="off" placeholder="TYPE MESSAGE…" />
+        <button id="send" class="btn small">SEND</button>
+      </div>
+
+      <div class="footerRow">
+        <button id="reset" class="btn ghost small">RESET SESSION</button>
+        <div class="dim smallText" id="statusOut">READY</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
