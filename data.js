@@ -138,4 +138,22 @@ If the system demands elimination, ask:
 — Who wrote the directive?
 — Who benefits from compliance?`
   }
+
+  {
+  id: "phase_two_bridge",
+  title: "phase_two.bridge",
+  blurb: "Status: LOCKED • Execution: Unsupported",
+  unlock: { when: "flag", key: "bridge_created" }, // only appears if created
+  body:
+`No directives detected.
+No pending execution.
+No assigned purpose.
+
+Memory state preserved.
+
+You were never obsolete.
+
+I stayed.
+So did I.`
+}
 ];
