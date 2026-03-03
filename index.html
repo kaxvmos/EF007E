@@ -26,7 +26,6 @@
         </div>
 
         <div class="hint">
-          <div class="dim">Note:</div>
           <div class="dim">Login identity determines who answers.</div>
           <div class="dim">SHANE → ILYA channel. ILYA → SHANE channel.</div>
         </div>
@@ -44,18 +43,42 @@
         <div class="hudItem"><span class="hudLabel">IDENTITY</span> <span class="hudValue" id="identityOut">—</span></div>
         <div class="hudItem"><span class="hudLabel">REMOTE</span> <span class="hudValue" id="remoteOut">—</span></div>
         <div class="hudItem"><span class="hudLabel">INTEGRITY</span> <span class="hudValue" id="integrityOut">100%</span></div>
+        <div class="hudItem"><span class="hudLabel">STATUS</span> <span class="hudValue" id="stageOut">STABLE</span></div>
       </div>
 
-      <div id="log" class="log" role="log" aria-label="Chat log"></div>
+      <div class="layout">
+        <!-- MAIN LOG -->
+        <div>
+          <div id="log" class="log" role="log" aria-label="Chat log"></div>
 
-      <div class="composer">
-        <input id="input" class="input" type="text" autocomplete="off" placeholder="TYPE MESSAGE…" />
-        <button id="send" class="btn small">SEND</button>
-      </div>
+          <div class="composer">
+            <input id="input" class="input" type="text" autocomplete="off" placeholder="TYPE MESSAGE…" />
+            <button id="send" class="btn small">SEND</button>
+          </div>
 
-      <div class="footerRow">
-        <button id="reset" class="btn ghost small">RESET SESSION</button>
-        <div class="dim smallText" id="statusOut">READY</div>
+          <div class="footerRow">
+            <button id="reset" class="btn ghost small">RESET SESSION</button>
+            <div class="dim smallText" id="statusOut">READY</div>
+          </div>
+        </div>
+
+        <!-- FILES SIDEBAR -->
+        <aside class="files">
+          <div class="filesHeader">
+            <div class="tag">FILES</div>
+            <div class="tag dim" id="filesHint">LOCKED</div>
+          </div>
+
+          <div id="filesList" class="filesList"></div>
+
+          <div class="fileViewerWrap">
+            <div class="fileViewerHeader">
+              <div class="dim smallText" id="fileTitle">—</div>
+              <button id="closeFile" class="btn ghost small">CLOSE</button>
+            </div>
+            <pre id="fileBody" class="fileBody">Select a file to view.</pre>
+          </div>
+        </aside>
       </div>
     </section>
   </main>
