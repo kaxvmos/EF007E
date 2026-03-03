@@ -187,10 +187,17 @@ rebooted: false
     }
   }
 
-  function openFile(file) {
-    fileTitle.textContent = file.title;
-    fileBody.textContent = file.body;
+function openFile(file) {
+  fileTitle.textContent = file.title;
+  fileBody.textContent = file.body;
+
+  // NEW: reader must open at least one Architect-related file
+  const t = (file.title || "").toLowerCase();
+  if (t.includes("architect") || t.includes("ilya") || t.includes("build") || t.includes("casefile")) {
+    state.flags.reader_understood = true;
+    setUI();
   }
+}
 
   function closeFileViewer() {
     fileTitle.textContent = "—";
