@@ -1,13 +1,10 @@
+/* style.css */
 :root{
   --bg:#050d14;
   --bg2:#03090f;
   --cyan:#00e5ff;
   --cyanSoft:rgba(0,229,255,.35);
   --text:#bffaff;
-
-  --warn:#ff3b3b;
-  --cold:#e6f0ff;
-
   --panelMax: 980px;
 }
 
@@ -104,7 +101,6 @@ body{
 .hudLabel{ opacity:.75; letter-spacing:.08em; }
 .hudValue{ color: var(--cyan); font-weight:bold; }
 
-/* layout with files */
 .layout{
   display:grid;
   grid-template-columns: 1fr 300px;
@@ -215,25 +211,46 @@ body{
   white-space: pre-wrap;
 }
 
-/* --- Escalating GLITCH STAGES --- */
-.glitchStage1 .panel{
-  border-color: rgba(140,0,0,.55);
-  box-shadow: 0 0 16px rgba(140,0,0,.18);
+/* --- FULL RED TAKEOVER + GLITCH OVERLAY --- */
+
+.glitchStage1,
+.glitchStage2,
+.glitchStage3{
+  background:
+    radial-gradient(1200px 800px at 20% 10%, rgba(255,0,0,.10), transparent 55%),
+    linear-gradient(180deg, #0a0002, #030001);
 }
-.glitchStage2 .panel{
-  border-color: rgba(140,0,0,.75);
-  box-shadow: 0 0 18px rgba(140,0,0,.28);
-}
+
+.glitchStage1 .panel,
+.glitchStage2 .panel,
 .glitchStage3 .panel{
-  border-color: rgba(140,0,0,.95);
-  box-shadow: 0 0 22px rgba(140,0,0,.40);
+  border-color: rgba(255,40,40,.95);
+  box-shadow: 0 0 22px rgba(255,0,0,.28);
 }
 
 .glitchStage1 .tag,
 .glitchStage2 .tag,
-.glitchStage3 .tag{
-  border-color: rgba(140,0,0,.75);
-  color: rgba(255,80,80,.95);
+.glitchStage3 .tag,
+.glitchStage1 .btn,
+.glitchStage2 .btn,
+.glitchStage3 .btn{
+  border-color: rgba(255,60,60,.85);
+  color: rgba(255,95,95,.95);
+}
+
+.glitchStage1 .input,
+.glitchStage2 .input,
+.glitchStage3 .input,
+.glitchStage1 .files,
+.glitchStage2 .files,
+.glitchStage3 .files{
+  border-color: rgba(255,60,60,.55);
+}
+
+.glitchStage1 .msg,
+.glitchStage2 .msg,
+.glitchStage3 .msg{
+  border-left-color: rgba(255,60,60,.30);
 }
 
 .glitchStage1 .hudValue,
@@ -242,26 +259,38 @@ body{
 .glitchStage1 .who,
 .glitchStage2 .who,
 .glitchStage3 .who{
-  color: var(--cold);
+  color: #ffe6e6;
   text-shadow:
-    -1px 0 rgba(140,0,0,.85),
-     1px 0 rgba(0,120,255,.7),
-     0 0 10px rgba(255,255,255,.12);
+    0 0 10px rgba(255,50,50,.35),
+    0 0 18px rgba(255,0,0,.25);
 }
 
-.glitchStage2 .input,
-.glitchStage3 .input{
-  border-color: rgba(140,0,0,.55);
+/* Minecraft-ish gibberish overlay */
+.glitchText{
+  position: relative;
+  display: inline-block;
 }
-
-.glitchStage1 .msg{ border-left-color: rgba(140,0,0,.22); }
-.glitchStage2 .msg{ border-left-color: rgba(140,0,0,.32); }
-.glitchStage3 .msg{ border-left-color: rgba(140,0,0,.42); }
+.glitchText::before{
+  content: attr(data-glitch);
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: pre-wrap;
+  opacity: .85;
+  color: rgba(255,90,90,.95);
+  text-shadow: 0 0 10px rgba(255,0,0,.35);
+  pointer-events: none;
+}
+.glitchText .clean{
+  opacity: .45;
+}
+.glitchStage2 .glitchText::before{ opacity: .92; }
+.glitchStage3 .glitchText::before{ opacity: .98; }
+.glitchStage3 .glitchText .clean{ opacity: .35; }
 
 @media (max-width: 860px){
   .layout{ grid-template-columns: 1fr; }
 }
-
 @media (max-width: 520px){
   .title{ font-size: 22px; }
   .log{ min-height: 300px; }
