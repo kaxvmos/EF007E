@@ -68,11 +68,17 @@ body{
   letter-spacing: .08em;
 }
 
-.sub{ margin:0 0 16px 0; opacity:.85; }
+.sub{
+  margin:0 0 16px 0;
+  opacity:.85;
+}
 
 /* Login layout */
 .loginPanel{
   min-height: 78vh;
+}
+
+.loginPanel:not(.hidden){
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,11 +171,25 @@ body{
   text-transform: uppercase;
 }
 
-.btn:hover{ box-shadow: 0 0 10px var(--cyanSoft); }
-.btn.small{ padding: 8px 10px; border-radius: 9px; }
-.btn.ghost{ border-color: rgba(0,229,255,.45); color: rgba(0,229,255,.85); }
+.btn:hover{
+  box-shadow: 0 0 10px var(--cyanSoft);
+}
 
-.hint{ margin-top: 12px; font-size: 12px; line-height: 1.35; }
+.btn.small{
+  padding: 8px 10px;
+  border-radius: 9px;
+}
+
+.btn.ghost{
+  border-color: rgba(0,229,255,.45);
+  color: rgba(0,229,255,.85);
+}
+
+.hint{
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.35;
+}
 
 .hudBar{
   display:flex;
@@ -412,7 +432,9 @@ body{
 .glitchStage3 .glitchText .clean{ opacity: .35; }
 
 @media (max-width: 860px){
-  .layout{ grid-template-columns: 1fr; }
+  .layout{
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 520px){
