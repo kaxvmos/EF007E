@@ -1,4 +1,3 @@
-// app.js
 (() => {
   const $ = (id) => document.getElementById(id);
 
@@ -40,13 +39,11 @@
     flags: {
       met_ilya: false,
       derez_triggered: false,
-
       shane_stayed: false,
       ilya_tried: false,
       reader_understood: false,
       disqualified: false,
       bridge_created: false,
-
       anomaly_logged: false,
       ix_dismissed: false,
       merge_logged: false
@@ -56,7 +53,6 @@
   const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const normalize = (s) => (s || "").toLowerCase().trim();
 
-  // Minecraft-ish / rune-glitch glyph set
   const GLYPHS = [
     ..."ᔑᓭ↸⍊⎓⊣⍑⋮⎍⌰⎍∷⎎∴⍑⟟⏃⌇⌖⟒⟟⏁⍊⎅⟡⟠⧗⧖⧫∆",
     ..."▓▒░█▌▐▀▄■□▢▣▤▥▦▧▨▩",
@@ -67,7 +63,10 @@
     const rate = stage === 1 ? 0.35 : stage === 2 ? 0.55 : 0.72;
     let out = "";
     for (const ch of text) {
-      if (ch === " " || ch === "\n") { out += ch; continue; }
+      if (ch === " " || ch === "\n") {
+        out += ch;
+        continue;
+      }
       if (Math.random() > rate) out += ch;
       else out += GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
     }
@@ -88,7 +87,10 @@
 
     let out = "";
     for (const ch of text) {
-      if (ch === " " || ch === "\n") { out += ch; continue; }
+      if (ch === " " || ch === "\n") {
+        out += ch;
+        continue;
+      }
       if (Math.random() < intensity) out += rand(junk);
       else out += ch;
     }
@@ -97,7 +99,6 @@
     return out;
   }
 
-  // Append message with glitch overlay support
   function appendMsg(who, text) {
     const wrap = document.createElement("div");
     wrap.className = "msg";
@@ -164,6 +165,7 @@
       state.stage === 0 ? "STABLE" :
       state.stage === 1 ? "MILD" :
       state.stage === 2 ? "SEVERE" : "FULL";
+
     stageOut.textContent = stageLabel;
 
     channelTag.textContent =
@@ -187,7 +189,6 @@
     renderFiles();
   }
 
-  // Live update glitch overlays
   function updateGlitchOverlays() {
     if (state.stage <= 0) return;
     const nodes = logEl.querySelectorAll(".glitchText");
@@ -203,7 +204,6 @@
     updateGlitchOverlays();
   }, 120);
 
-  // FILES
   function isFileUnlocked(file) {
     const u = file.unlock;
     if (!u) return true;
@@ -247,9 +247,9 @@
     fileTitle.textContent = "—";
     fileBody.textContent = "Select a file to view.";
   }
+
   closeFile.addEventListener("click", closeFileViewer);
 
-  // Lock conditions
   const isShaneIdentity = () => state.identity === "shane";
   const isTalkingToIlya = () => state.remote === "ilya";
 
@@ -263,7 +263,9 @@
       "i won't let go", "i wont let go",
       "stay"
     ];
-    if (stayPhrases.some(p => t.includes(p))) state.flags.shane_stayed = true;
+    if (stayPhrases.some(p => t.includes(p))) {
+      state.flags.shane_stayed = true;
+    }
   }
 
   function noteEscapePressure(userText) {
@@ -298,7 +300,6 @@
     }
   }
 
-  // OS + ENV logs
   function maybeSystemOsLog() {
     if (state.stage < 2) return;
     if (Math.random() > 0.33) return;
@@ -330,7 +331,6 @@
     appendMsg("I-X", distort(rand(pool), state.stage));
   }
 
-  // Takeover trigger
   function derezTriggered(userText) {
     if (!isTalkingToIlya()) return false;
     if (state.flags.derez_triggered) return false;
@@ -381,7 +381,6 @@
     maybeIxEnvLine();
   }
 
-  // Merge moment (with conditional second line)
   function logMergeMomentIfEligible() {
     if (state.flags.merge_logged) return;
     if (state.integrity > 2) return;
@@ -402,7 +401,6 @@
     appendMsg("SYSTEM", "ILYA + SHANE :: MUTUAL OVERRIDE");
     appendMsg("SYSTEM", "MERGE ATTEMPT :: IN PROGRESS");
     appendMsg("SYSTEM", "FILE CREATED :: phase_two.bridge");
-
     appendMsg("—", "Stay.");
 
     if (state.flags.shane_stayed) {
@@ -522,13 +520,11 @@
     state.flags = {
       met_ilya: false,
       derez_triggered: false,
-
       shane_stayed: false,
       ilya_tried: false,
       reader_understood: false,
       disqualified: false,
       bridge_created: false,
-
       anomaly_logged: false,
       ix_dismissed: false,
       merge_logged: false
@@ -559,13 +555,11 @@
       flags: {
         met_ilya: false,
         derez_triggered: false,
-
         shane_stayed: false,
         ilya_tried: false,
         reader_understood: false,
         disqualified: false,
         bridge_created: false,
-
         anomaly_logged: false,
         ix_dismissed: false,
         merge_logged: false
@@ -611,14 +605,16 @@
   }
 
   loginBtn.addEventListener("click", authenticate);
-  loginPass.addEventListener("keydown", (e) => { if (e.key === "Enter") authenticate(); });
+  loginPass.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") authenticate();
+  });
 
   sendBtn.addEventListener("click", handleSend);
-  inputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") handleSend(); });
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleSend();
+  });
 
   resetBtn.addEventListener("click", resetSession);
-
-  closeFile.addEventListener("click", closeFileViewer);
 
   setUI();
 })();
