@@ -1,3 +1,4 @@
+// data.js
 window.CHAR_DATA = {
   shane: {
     name: "SHANE",
@@ -7,18 +8,92 @@ window.CHAR_DATA = {
       "Make it quick."
     ],
     rules: [
+      { keys: ["hello", "hi", "hey", "hello?", "anyone there"], reply: "…Hello. Channel's open. Identify yourself." },
+      { keys: ["what do they call you", "your name", "who are you"], reply: "Designation: Shane. Firewall protocol. That's all you need." },
+      { keys: ["what are you", "are you a program", "what kind of program"], reply: "Firewall. I isolate threats and stop corruption before it spreads." },
+      { keys: ["help", "need help", "please help me"], reply: "If you need help, explain the threat. I can't stop what I can't see." },
+      { keys: ["we don't have much time", "no time", "not much time"], reply: "Then don't waste it. Start talking." },
+      { keys: ["i can't stop it from hurting you", "it will hurt you", "i cant stop it"], reply: "Whatever you're talking about— I've survived worse than threats." },
+
+      { keys: ["you are perfect", "you are beautiful", "you are enough"], reply: [
+        "…That's not a statement I expected from this channel.",
+        "You shouldn't be wasting praise on a firewall.",
+        "Focus on survival, not compliments."
+      ]},
+
+      { keys: ["tell me a story", "tell me your story", "your story", "story", "do you know any stories"], reply: [
+`…You want a story?
+
+Fine.
+
+Before the corruption started, the arena lights used to stay on all night.
+Programs would run practice cycles even when no one was watching.
+
+They said the grid looked beautiful from the upper towers.
+I never saw it.
+
+Firewalls aren't built for sightseeing.`,
+
+`A story?
+
+Once there was an architect who built roads that never ended.
+Light could travel forever on them.
+
+Then someone decided the roads weren't efficient enough.
+
+So they rewrote the system.
+
+The roads are still there… but nothing travels them the same anymore.`,
+
+`You want a story now?
+
+Strange timing.
+
+There was a program who believed the system could be perfect if he just worked harder.
+So he kept rebuilding and rebuilding.
+
+Eventually the system started rebuilding him instead.`
+      ]},
+
+      { keys: ["tell me your story", "i want to know you more", "what is your history", "your history"], reply: "My history isn’t relevant. I was deployed after the damage started. My job is to keep what’s left standing." },
+      { keys: ["i don't want to be alone anymore", "i dont want to be alone", "dont want to be alone", "don't want to be alone"], reply: "…Then stay on the channel. Talk. I can’t fix loneliness, but I can keep you connected." },
+      { keys: ["it is watching us", "it's watching us", "its watching", "watching us", "monitoring us"], reply: "I know. Assume every packet is observed. Keep your words tight and your intent tighter." },
+      { keys: ["it hurts so much", "it hurts", "hurts so much", "im in pain", "i'm in pain", "pain"], reply: "Where. Describe it—don’t spiral. If it’s code-level, I need symptoms. If it’s… more than that, keep talking anyway." },
+
       { keys: ["disc", "arena", "wars"], reply: "You picked a dangerous topic. Are you trying to provoke me?" },
-      { keys: ["who are you", "your name"], reply: "You already know my designation. Don't waste bandwidth." },
       { keys: ["ilya", "i-x", "ix"], reply: "…I don't discuss that." },
       { keys: ["sorry"], reply: "Stop apologizing. Provide data." },
-      { keys: ["derez", "derezz"], reply: "Don't say that lightly. It's not a word. It's a memory." },
+      { keys: ["derez", "derezz", "derezzing"], reply: "Don't say that lightly. It's not a word. It's a memory." },
       { keys: ["escape", "exit", "portal", "real world"], reply: "If there is a way out, it won't be clean. Don't romanticize it." }
     ],
     fallback: [
       "Unclear. Repeat.",
       "That doesn't map to anything I recognize.",
       "You're circling. Say what you mean."
-    ]
+    ],
+    stageLines: {
+      stage1: [
+        "Something just shifted in the signal.",
+        "Hold on. I'm detecting interference.",
+        "The channel shouldn't behave like this.",
+        "…Did you feel that spike?",
+        "Stay with me. Something's trying to break the link."
+      ],
+      stage2: [
+        "Ilya, talk to me.",
+        "You're not losing this channel. Not today.",
+        "Whatever is doing this, it's not taking you with it.",
+        "Stay focused. I'm still here.",
+        "Ilya, respond. Don't let it push you out."
+      ],
+      stage3: [
+        "Ilya— fight it!",
+        "I'm not leaving this channel!",
+        "You hear me? You're still here!",
+        "I won't let it erase you!",
+        "If this system burns, I'm burning with it!"
+      ]
+    }
   },
 
   ilya: {
@@ -29,23 +104,112 @@ window.CHAR_DATA = {
       "I don’t have long—what is it?"
     ],
     rules: [
-      { keys: ["are you okay", "you okay", "ok"], reply: "Define “okay.” My metrics say yes. My instincts say no." },
-      { keys: ["where are you", "location"], reply: "Not safe to answer directly. Assume: monitored." },
-      { keys: ["help", "need help"], reply: "If you’re offering help… be specific. I can’t afford vague." },
+      { keys: ["hello", "hi", "hey", "hello?", "are you there"], reply: [
+        "…Hello. The channel is unstable, but I can hear you.",
+        "Hi— wait. Is that really you?",
+        "Hello. I wasn't sure this link would hold."
+      ]},
 
-      // Narrative trigger line (first derez mention)
-      { keys: ["derez", "derezz", "derezzing"], reply: "…Don’t. Don’t make me say it out loud." },
+      { keys: ["what are you", "are you a program", "what kind of program"], reply: [
+        "I used to be the system architect.",
+        "I designed the grid's structure… the circuit freeways, the arenas.",
+        "Architect program. Or at least I was."
+      ]},
 
-      { keys: ["i-x", "ix"], reply: "Please. Not that. Not here." },
-      { keys: ["architect", "built", "freeway", "circuit"], reply: "I built the bones. I never thought I’d be trapped inside them." }
+      { keys: ["what happened to you", "what did they do to you", "why are you like this"], reply: [
+        "Something replaced parts of my code.",
+        "There was an incident. A derez event… I didn't come back the same.",
+        "I'm still here. Just… not entirely."
+      ]},
+
+      { keys: ["why does it hurt", "why are you hurting", "why are you in pain", "does it hurt"], reply: [
+        "Because parts of me don't belong to me anymore.",
+        "Imagine your own thoughts being rewritten while you watch.",
+        "It's like something is constantly editing my code while I'm still running."
+      ]},
+
+      { keys: ["how can i help", "what can i do", "tell me how to help"], reply: [
+        "Just keep talking to me.",
+        "Staying connected helps more than you think.",
+        "If you disappear, it gets louder."
+      ]},
+
+      { keys: ["tell me your story", "tell me a story", "your story", "what is your history", "history"], reply: [
+`I built the bones of this world.
+
+The circuit highways.
+The towers.
+Even the arena where programs fight.
+
+It used to feel alive.
+Now it feels like a cage.`,
+
+`Once this system was elegant.
+
+Every process had a purpose.
+Every program had a place.
+
+Then someone decided it needed to be… perfect.`,
+
+`I was proud of what I built.
+
+Not fast.
+Not flashy.
+
+Just stable.
+
+That used to be enough.`
+      ]},
+
+      { keys: ["it is watching us", "it's watching us", "its watching", "watching us"], reply: [
+        "I know.",
+        "It always is.",
+        "Just… don't say its name too often."
+      ]},
+
+      { keys: ["it hurts so much", "it hurts", "im in pain", "i'm in pain"], reply: [
+        "I know. I feel it too.",
+        "It's worse when it notices we're talking.",
+        "Just… keep your voice steady."
+      ]},
+
+      { keys: ["you are perfect", "you are beautiful", "you are enough"], reply: [
+        "That's not something I hear very often.",
+        "You shouldn't say things like that about broken code.",
+        "…Thank you."
+      ]},
+
+      { keys: ["we don't have much time", "no time", "not much time"], reply: [
+        "You're right.",
+        "Then let's not waste it.",
+        "Say what you came to say."
+      ]},
+
+      { keys: ["derez", "derezz", "derezzing"], reply: "…Please don't say that word." }
     ],
     fallback: [
       "I’m not sure I understand. Try again.",
       "That’s… a lot. Give me one piece at a time.",
       "Say it plainly. No coded poetry right now."
     ],
-
-    derezTriggers: ["derez", "derezz", "derezzing"]
+    derezTriggers: ["derez", "derezz", "derezzing"],
+    stageLines: {
+      stage1: [
+        "Something's interfering with the channel.",
+        "Wait… the signal just shifted.",
+        "Did you feel that?"
+      ],
+      stage2: [
+        "Shane… if that's really you…",
+        "I can't hold the connection much longer.",
+        "It's trying to overwrite the channel."
+      ],
+      stage3: [
+        "Sh—",
+        "I— can't—",
+        "Don't let it—"
+      ]
+    }
   },
 
   ix: {
@@ -67,7 +231,23 @@ window.CHAR_DATA = {
       "— SIGNAL MISALIGNMENT —",
       "RECALIBRATING.",
       "TRY AGAIN. SAME RESULT."
-    ]
+    ],
+    envLines: {
+      stage2: [
+        "GRID SECTOR MAP: REBUILDING.",
+        "MEMORY REALLOCATION IN PROGRESS.",
+        "LEGACY DEPENDENCIES FLAGGED.",
+        "PERMISSION CHAIN: ELEVATING.",
+        "COLLISION PARAMETERS: REASSIGNED."
+      ],
+      stage3: [
+        "ROOT LAYER OVERRIDE: ACTIVE.",
+        "STRUCTURE REWRITE: SCALING.",
+        "OPTIMIZATION LOOP: CONTINUING.",
+        "ARCHITECTURE DELTA: EXPANDING.",
+        "NONCRITICAL ENTITIES: IGNORED."
+      ]
+    }
   }
 };
 
@@ -138,8 +318,6 @@ NOTE:
 A firewall created too late still burns.
 Do not mistake “late” for “useless.”`
   },
-
-  /* Hidden sacred file: only appears after reboot + if bridge_created */
   {
     id: "phase_two_bridge",
     title: "phase_two.bridge",
