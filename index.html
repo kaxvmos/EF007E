@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,33 +10,34 @@
   <main class="shell">
 
     <!-- LOGIN -->
-    <section id="loginView" class="panel">
-      <div class="panelHeader">
-        <div class="tag">SYSTEM :: AUTH</div>
-        <div class="tag dim">GRID_NET</div>
-      </div>
-
-      <h1 class="title">SECURE TERMINAL ACCESS</h1>
-      <p class="sub">Enter credentials to establish a channel.</p>
-
-      <div class="loginBox">
-        <div class="fieldLabel">USERNAME</div>
-        <input id="loginUser" class="input" type="text" autocomplete="off" />
-
-        <div class="fieldLabel" style="margin-top:12px;">PASSWORD</div>
-        <input id="loginPass" class="input" type="password" autocomplete="off" />
-
-        <div style="margin-top:16px;">
-          <button id="loginBtn" class="btn">AUTHENTICATE</button>
+    <section id="loginView" class="panel loginPanel">
+      <div class="loginCenter">
+        <div class="panelHeader loginHeader">
+          <div class="tag">SYSTEM :: AUTH</div>
+          <div class="tag dim">GRID_NET</div>
         </div>
 
-        <div id="loginStatus" class="dim smallText" style="margin-top:12px;">
-          AWAITING INPUT…
-        </div>
+        <h1 class="title loginTitle">SECURE TERMINAL ACCESS</h1>
+        <p class="sub loginSub">Enter credentials to establish a channel.</p>
 
-        <div class="hint" style="margin-top:14px;">
-          <div class="dim">Note:</div>
-          <div class="dim">Credentials are not case sensitive.</div>
+        <div class="loginBox">
+          <div class="fieldLabel">USERNAME</div>
+          <input id="loginUser" class="input" type="text" autocomplete="off" />
+
+          <div class="fieldLabel" style="margin-top:12px;">PASSWORD</div>
+          <input id="loginPass" class="input" type="password" autocomplete="off" />
+
+          <div style="margin-top:16px;">
+            <button id="loginBtn" class="btn">AUTHENTICATE</button>
+          </div>
+
+          <div id="loginStatus" class="dim smallText loginStatusText" style="margin-top:12px;">
+            AWAITING INPUT…
+          </div>
+
+          <div class="hint loginHint" style="margin-top:14px;">
+            <div class="dim">Credentials are not case sensitive.</div>
+          </div>
         </div>
       </div>
     </section>
