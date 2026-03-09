@@ -38,7 +38,9 @@ body{
   background: rgba(5,13,20,.88);
 }
 
-.hidden{ display:none; }
+.hidden{
+  display: none !important;
+}
 
 .panelHeader{
   display:flex;
