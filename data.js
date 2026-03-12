@@ -1,6 +1,10 @@
 window.CHAR_DATA = {
   shane: {
+    key: "shane",
     name: "SHANE",
+    avatar: "assets/avatars/shane.png",
+    avatarAlt: "Shane avatar",
+    short: "SH",
     openers: [
       "State your reason for contact.",
       "Identify yourself.",
@@ -134,9 +138,9 @@ Eventually the system started rebuilding him instead.`
       {
         keys: ["why not", "why", "why wont you", "why won't you", "why dont you", "why don't you"],
         reply: [
-          "Because some names are safer unspoken.",
-          "Because talking about it makes the channel less stable.",
-          "Because I don't trust what might be listening."
+          "Because if I say too much, it learns what still matters to me.",
+          "Because some names don't stay harmless once they're spoken out loud.",
+          "Because the last time I answered that honestly, the channel paid for it."
         ]
       },
       {
@@ -191,7 +195,11 @@ Eventually the system started rebuilding him instead.`
   },
 
   ilya: {
+    key: "ilya",
     name: "ILYA",
+    avatar: "assets/avatars/ilya.png",
+    avatarAlt: "Ilya avatar",
+    short: "IL",
     openers: [
       "…Hello?",
       "Shane? Is that you?",
@@ -410,7 +418,11 @@ That used to be enough.`
   },
 
   ix: {
+    key: "ix",
     name: "I-X",
+    avatar: "assets/avatars/ix.png",
+    avatarAlt: "I-X avatar",
+    short: "IX",
     openers: [
       "CHANNEL ACQUIRED.",
       "HELLO, OPERATOR.",
