@@ -36,6 +36,8 @@
 
           <div class="hint loginHint" style="margin-top:14px;">
             <div class="dim">Credentials are not case sensitive.</div>
+            <div class="dim">Shane / firewall</div>
+            <div class="dim">Ilya / architect</div>
           </div>
         </div>
       </div>
@@ -52,6 +54,7 @@
         <div class="hudItem"><span class="hudLabel">REMOTE</span> <span class="hudValue" id="remoteOut">—</span></div>
         <div class="hudItem"><span class="hudLabel">INTEGRITY</span> <span class="hudValue" id="integrityOut">100%</span></div>
         <div class="hudItem"><span class="hudLabel">STATUS</span> <span class="hudValue" id="stageOut">STABLE</span></div>
+        <div class="hudItem"><span class="hudLabel">BOND</span> <span class="hudValue" id="bondOut">0</span></div>
       </div>
 
       <div class="layout">
@@ -61,6 +64,7 @@
               <img id="speakerAvatar" class="speakerAvatar hiddenAvatar" alt="" />
               <div id="speakerFallback" class="speakerFallback">--</div>
             </div>
+
             <div class="speakerInfo">
               <div class="speakerLabel">ACTIVE CHANNEL</div>
               <div class="speakerName" id="speakerName">—</div>
@@ -80,8 +84,19 @@
             <button id="send" class="btn small">SEND</button>
           </div>
 
+          <div id="helpPanel" class="helpPanel hidden">
+            <div class="helpHeader">
+              <div class="tag">HINTS</div>
+              <div class="dim smallText" id="helpSub">Suggested prompts</div>
+            </div>
+            <div id="helpBody" class="helpBody"></div>
+          </div>
+
           <div class="footerRow">
-            <button id="reset" class="btn ghost small">RESET SESSION</button>
+            <div class="footerActions">
+              <button id="helpBtn" class="btn ghost small">HELP</button>
+              <button id="reset" class="btn ghost small">RESET SESSION</button>
+            </div>
             <div class="dim smallText" id="statusOut">READY</div>
           </div>
         </div>
