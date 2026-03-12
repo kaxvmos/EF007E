@@ -21,6 +21,7 @@
   const statusOut = $("statusOut");
   const systemTag = $("systemTag");
   const channelTag = $("channelTag");
+  const bondOut = $("bondOut");
 
   const filesList = $("filesList");
   const filesHint = $("filesHint");
@@ -35,28 +36,58 @@
   const typingIndicator = $("typingIndicator");
   const typingName = $("typingName");
 
-  let state = {
-    identity: null,
-    remote: null,
-    stage: 0,
-    integrity: 100,
-    turnsSinceTakeover: 0,
-    escape_attempts: 0,
-    rebooted: false,
-    pendingReplies: 0,
-    flags: {
-      met_ilya: false,
-      derez_triggered: false,
-      shane_stayed: false,
-      ilya_tried: false,
-      reader_understood: false,
-      disqualified: false,
-      bridge_created: false,
-      anomaly_logged: false,
-      ix_dismissed: false,
-      merge_logged: false
-    }
-  };
+  const helpBtn = $("helpBtn");
+  const helpPanel = $("helpPanel");
+  const helpBody = $("helpBody");
+  const helpSub = $("helpSub");
+
+  function createFreshMemory() {
+    return {
+      expressedLove: false,
+      expressedMissing: false,
+      expressedFear: false,
+      askedForgiveness: false,
+      promisedStay: false,
+      askedIfHurt: false,
+      askedIfDying: false,
+      defendedFromIx: false,
+      askedWhatIsReal: false,
+      askedForTruth: false,
+      saidInHiding: false,
+      repeatedFearCount: 0,
+      repeatedLoveCount: 0,
+      trustQuestions: 0,
+      truthQuestions: 0
+    };
+  }
+
+  function createFreshState() {
+    return {
+      identity: null,
+      remote: null,
+      stage: 0,
+      integrity: 100,
+      turnsSinceTakeover: 0,
+      escape_attempts: 0,
+      rebooted: false,
+      pendingReplies: 0,
+      flags: {
+        met_ilya: false,
+        derez_triggered: false,
+        shane_stayed: false,
+        ilya_tried: false,
+        reader_understood: false,
+        disqualified: false,
+        bridge_created: false,
+        anomaly_logged: false,
+        ix_dismissed: false,
+        merge_logged: false
+      },
+      memory: createFreshMemory()
+    };
+  }
+
+  let state = createFreshState();
 
   const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const normalize = (s) => (s || "").toLowerCase().trim();
@@ -70,6 +101,7 @@
   function makeGibberishFrom(text, stage) {
     const rate = stage === 1 ? 0.35 : stage === 2 ? 0.55 : 0.72;
     let out = "";
+
     for (const ch of text) {
       if (ch === " " || ch === "\n") {
         out += ch;
@@ -102,6 +134,7 @@
       if (Math.random() < intensity) out += rand(junk);
       else out += ch;
     }
+
     if (stage >= 2 && Math.random() < 0.30) out = out.replace(/ /g, "  ");
     if (stage >= 3 && Math.random() < 0.22) out = out.toUpperCase();
     return out;
@@ -109,6 +142,7 @@
 
   function getCharVisual(keyOrWho) {
     const key = (keyOrWho || "").toLowerCase();
+
     if (window.CHAR_DATA[key]) return window.CHAR_DATA[key];
 
     const fallbackMap = {
@@ -132,13 +166,13 @@
       img.alt = visual.avatarAlt || `${visual.name} avatar`;
       img.loading = "lazy";
       img.addEventListener("error", () => {
-        wrap.innerHTML = `<div class="msgAvatarFallback">${visual?.short || label.slice(0, 2).toUpperCase()}</div>`;
+        wrap.innerHTML = `<div class="msgAvatarFallback">${visual?.short || String(label).slice(0, 2).toUpperCase()}</div>`;
       });
       wrap.appendChild(img);
       return wrap;
     }
 
-    wrap.innerHTML = `<div class="msgAvatarFallback">${visual?.short || label.slice(0, 2).toUpperCase()}</div>`;
+    wrap.innerHTML = `<div class="msgAvatarFallback">${visual?.short || String(label).slice(0, 2).toUpperCase()}</div>`;
     return wrap;
   }
 
@@ -227,12 +261,14 @@
   function matchRule(characterKey, userText) {
     const data = window.CHAR_DATA[characterKey];
     const t = normalize(userText);
+
     for (const rule of data.rules) {
       if (rule.keys.some(k => t.includes(k))) {
         if (Array.isArray(rule.reply)) return rand(rule.reply);
         return rule.reply;
       }
     }
+
     return rand(data.fallback);
   }
 
@@ -243,58 +279,29 @@
     if (state.stage === 3) document.body.classList.add("glitchStage3");
   }
 
-  function setUI() {
-    identityOut.textContent = state.identity?.toUpperCase() ?? "—";
-    remoteOut.textContent = state.stage === 3 ? "I-X" : (state.remote?.toUpperCase() ?? "—");
-    integrityOut.textContent = `${state.integrity}%`;
+  function getBondScore() {
+    const m = state.memory;
+    let score = 0;
 
-    const stageLabel =
-      state.stage === 0 ? "STABLE" :
-      state.stage === 1 ? "MILD" :
-      state.stage === 2 ? "SEVERE" : "FULL";
+    if (m.expressedLove) score += 3;
+    if (m.expressedMissing) score += 2;
+    if (m.promisedStay) score += 2;
+    if (m.defendedFromIx) score += 3;
+    if (m.askedIfHurt) score += 1;
+    if (m.askedForgiveness) score += 1;
+    if (m.askedForTruth) score += 1;
+    if (m.askedWhatIsReal) score += 1;
 
-    stageOut.textContent = stageLabel;
+    score += Math.min(m.repeatedLoveCount, 2);
+    score += Math.min(m.repeatedFearCount, 1);
 
-    channelTag.textContent =
-      `CH: ${state.identity?.toUpperCase() ?? "—"}→${state.stage === 3 ? "I-X" : (state.remote?.toUpperCase() ?? "—")}`;
-
-    if (state.stage === 0) {
-      systemTag.textContent = "SYSTEM :: SECURE";
-      statusOut.textContent = state.pendingReplies > 0 ? "TRANSMISSION ACTIVE" : "READY";
-    } else if (state.stage === 1) {
-      systemTag.textContent = "SYSTEM :: DESYNC";
-      statusOut.textContent = state.pendingReplies > 0 ? "SIGNAL FLUCTUATING" : "SIGNAL UNSTABLE";
-    } else if (state.stage === 2) {
-      systemTag.textContent = "SYSTEM :: CORRUPTION";
-      statusOut.textContent = state.pendingReplies > 0 ? "CORRUPTION SPREADING" : "INTEGRITY DROPPING";
-    } else {
-      systemTag.textContent = "SYSTEM :: COMPROMISED";
-      statusOut.textContent = state.pendingReplies > 0 ? "OVERRIDE ACTIVE" : "CHANNEL OVERRIDDEN";
-    }
-
-    setBodyStageClass();
-    renderFiles();
+    return score;
   }
-
-  function updateGlitchOverlays() {
-    if (state.stage <= 0) return;
-    const nodes = logEl.querySelectorAll(".glitchText");
-    nodes.forEach(node => {
-      const orig = node.dataset.orig || "";
-      node.dataset.glitch = makeGibberishFrom(orig, state.stage);
-    });
-  }
-
-  setInterval(() => {
-    if (state.stage === 1 && Math.random() < 0.45) return;
-    if (state.stage === 2 && Math.random() < 0.20) return;
-    updateGlitchOverlays();
-  }, 120);
 
   function isFileUnlocked(file) {
     const u = file.unlock;
     if (!u) return true;
-    if (file.id === "phase_two_bridge" && !state.rebooted) return false;
+    if (file.id === "phase_two.bridge" && !state.rebooted) return false;
     if (u.when === "flag") return !!state.flags[u.key];
     if (u.when === "stageAtLeast") return state.stage >= u.n;
     return false;
@@ -335,7 +342,128 @@
     fileBody.textContent = "Select a file to view.";
   }
 
-  closeFile.addEventListener("click", closeFileViewer);
+  function getHelpHints() {
+    if (state.stage === 3) {
+      return [
+        `Try asking <code>who are you</code>`,
+        `Try saying <code>stop</code> or <code>leave</code>`,
+        `Try mentioning <code>Shane</code> or <code>Ilya</code>`,
+        `Try provoking it with <code>escape</code> or <code>portal</code>`
+      ];
+    }
+
+    if (state.stage === 2) {
+      return [
+        `Try grounding them: <code>I'm here</code>`,
+        `Try emotional prompts: <code>stay with me</code>`,
+        `Try questions like <code>what happened to you</code>`,
+        `Try concern-based prompts: <code>does it hurt</code>`
+      ];
+    }
+
+    if (state.remote === "ilya") {
+      return [
+        `Try: <code>hello</code>`,
+        `Try: <code>what happened to you</code>`,
+        `Try: <code>tell me your story</code>`,
+        `Try: <code>how can I help</code>`,
+        `Try: <code>stay with me</code>`,
+        `Try: <code>do you trust me</code>`
+      ];
+    }
+
+    if (state.remote === "shane") {
+      return [
+        `Try: <code>hello</code>`,
+        `Try: <code>who are you</code>`,
+        `Try: <code>what are you</code>`,
+        `Try: <code>tell me a story</code>`,
+        `Try: <code>it is watching us</code>`,
+        `Try: <code>are you real</code>`
+      ];
+    }
+
+    return [
+      `Try simple openers like <code>hello</code>`,
+      `Ask identity questions like <code>who are you</code>`,
+      `Ask story questions like <code>tell me your story</code>`
+    ];
+  }
+
+  function renderHelp() {
+    const hints = getHelpHints();
+    helpBody.innerHTML = "";
+    helpSub.textContent =
+      state.stage >= 2 ? "Signal unstable • recommended prompts" : "Suggested prompts";
+
+    hints.forEach((hint) => {
+      const item = document.createElement("div");
+      item.className = "helpHint";
+      item.innerHTML = hint;
+      helpBody.appendChild(item);
+    });
+  }
+
+  function toggleHelp() {
+    helpPanel.classList.toggle("hidden");
+    helpBtn.textContent = helpPanel.classList.contains("hidden") ? "HELP" : "HIDE HELP";
+    if (!helpPanel.classList.contains("hidden")) {
+      renderHelp();
+    }
+  }
+
+  function setUI() {
+    identityOut.textContent = state.identity?.toUpperCase() ?? "—";
+    remoteOut.textContent = state.stage === 3 ? "I-X" : (state.remote?.toUpperCase() ?? "—");
+    integrityOut.textContent = `${state.integrity}%`;
+    bondOut.textContent = String(getBondScore());
+
+    const stageLabel =
+      state.stage === 0 ? "STABLE" :
+      state.stage === 1 ? "MILD" :
+      state.stage === 2 ? "SEVERE" : "FULL";
+
+    stageOut.textContent = stageLabel;
+
+    channelTag.textContent =
+      `CH: ${state.identity?.toUpperCase() ?? "—"}→${state.stage === 3 ? "I-X" : (state.remote?.toUpperCase() ?? "—")}`;
+
+    if (state.stage === 0) {
+      systemTag.textContent = "SYSTEM :: SECURE";
+      statusOut.textContent = state.pendingReplies > 0 ? "TRANSMISSION ACTIVE" : "READY";
+    } else if (state.stage === 1) {
+      systemTag.textContent = "SYSTEM :: DESYNC";
+      statusOut.textContent = state.pendingReplies > 0 ? "SIGNAL FLUCTUATING" : "SIGNAL UNSTABLE";
+    } else if (state.stage === 2) {
+      systemTag.textContent = "SYSTEM :: CORRUPTION";
+      statusOut.textContent = state.pendingReplies > 0 ? "CORRUPTION SPREADING" : "INTEGRITY DROPPING";
+    } else {
+      systemTag.textContent = "SYSTEM :: COMPROMISED";
+      statusOut.textContent = state.pendingReplies > 0 ? "OVERRIDE ACTIVE" : "CHANNEL OVERRIDDEN";
+    }
+
+    setBodyStageClass();
+    renderFiles();
+
+    if (!helpPanel.classList.contains("hidden")) {
+      renderHelp();
+    }
+  }
+
+  function updateGlitchOverlays() {
+    if (state.stage <= 0) return;
+    const nodes = logEl.querySelectorAll(".glitchText");
+    nodes.forEach(node => {
+      const orig = node.dataset.orig || "";
+      node.dataset.glitch = makeGibberishFrom(orig, state.stage);
+    });
+  }
+
+  setInterval(() => {
+    if (state.stage === 1 && Math.random() < 0.45) return;
+    if (state.stage === 2 && Math.random() < 0.20) return;
+    updateGlitchOverlays();
+  }, 120);
 
   const isShaneIdentity = () => state.identity === "shane";
   const isTalkingToIlya = () => state.remote === "ilya";
@@ -364,6 +492,174 @@
         state.flags.disqualified = true;
       }
     }
+  }
+
+  function noteConversationMemory(userText) {
+    const t = normalize(userText);
+    const hasAny = (phrases) => phrases.some(p => t.includes(p));
+
+    if (hasAny(["i love you", "i think i love you", "i care about you"])) {
+      state.memory.expressedLove = true;
+      state.memory.repeatedLoveCount += 1;
+    }
+
+    if (hasAny(["i miss you", "ive missed you", "i've missed you", "i missed you"])) {
+      state.memory.expressedMissing = true;
+    }
+
+    if (hasAny(["i'm scared", "im scared", "i am scared", "i'm afraid", "im afraid", "i am afraid", "i'm terrified", "im terrified"])) {
+      state.memory.expressedFear = true;
+      state.memory.repeatedFearCount += 1;
+    }
+
+    if (hasAny(["forgive me", "do you forgive me", "can you forgive me", "will you forgive me"])) {
+      state.memory.askedForgiveness = true;
+    }
+
+    if (hasAny([
+      "i'm still here", "im still here", "i am still here",
+      "i'm not leaving", "im not leaving", "i wont leave", "i won't leave",
+      "stay with me"
+    ])) {
+      state.memory.promisedStay = true;
+    }
+
+    if (hasAny(["are you hurt", "are you injured", "did they hurt you", "have you been hurt"])) {
+      state.memory.askedIfHurt = true;
+    }
+
+    if (hasAny(["are you dying", "are you going to die", "are you about to derez"])) {
+      state.memory.askedIfDying = true;
+    }
+
+    if (hasAny(["i won't let him take you", "i wont let him take you", "i won't let it take you", "i wont let it take you"])) {
+      state.memory.defendedFromIx = true;
+    }
+
+    if (hasAny(["was any of it real", "was it ever real", "was any of this real", "was it all fake", "are you real"])) {
+      state.memory.askedWhatIsReal = true;
+      state.memory.truthQuestions += 1;
+    }
+
+    if (hasAny(["tell me the truth", "tell me something true"])) {
+      state.memory.askedForTruth = true;
+      state.memory.truthQuestions += 1;
+    }
+
+    if (hasAny(["i'm hiding", "im hiding", "i am hiding", "i'm in hiding", "im in hiding"])) {
+      state.memory.saidInHiding = true;
+    }
+
+    if (hasAny(["do you trust me", "can you trust me", "will you trust me"])) {
+      state.memory.trustQuestions += 1;
+    }
+  }
+
+  function getMemoryAwareReply(characterKey, userText) {
+    const t = normalize(userText);
+    const m = state.memory;
+
+    if (characterKey === "shane") {
+      if (m.expressedLove && (t.includes("are you still there") || t.includes("did you leave"))) {
+        return rand([
+          "I'm still here. Don't make me repeat myself.",
+          "Still here. You said enough earlier that I'm not closing this channel yet.",
+          "Yes. I'm here."
+        ]);
+      }
+
+      if (m.expressedFear && (t.includes("help") || t.includes("what do i do"))) {
+        return rand([
+          "First, keep your breathing even. Second, keep talking.",
+          "You stay calm and you stay connected. Start there.",
+          "You already did the right thing by saying it out loud."
+        ]);
+      }
+
+      if (m.askedForgiveness && (t.includes("do you trust me") || t.includes("trust me"))) {
+        return rand([
+          "You're still asking. That counts for something.",
+          "Regret and trust aren't the same thing. But they're not unrelated either.",
+          "I'm still listening. Use that however you want."
+        ]);
+      }
+
+      if (m.defendedFromIx && (t.includes("what do you want") || t.includes("what are you trying to do"))) {
+        return rand([
+          "I want to keep this channel from losing one more person.",
+          "I want containment. And maybe, against my better judgment, I want you intact.",
+          "I want it stopped."
+        ]);
+      }
+
+      if (m.expressedMissing && (t.includes("do you remember before") || t.includes("remember before"))) {
+        return rand([
+          "More than I should.",
+          "Enough to know why you'd say that.",
+          "Enough."
+        ]);
+      }
+    }
+
+    if (characterKey === "ilya") {
+      if (m.expressedLove && (t.includes("are you still there") || t.includes("are you here"))) {
+        return rand([
+          "I'm here. I heard what you said.",
+          "Still here… and still thinking about that.",
+          "Yes. I'm here."
+        ]);
+      }
+
+      if (m.expressedMissing && (t.includes("do you remember me") || t.includes("you remember me"))) {
+        return rand([
+          "How could I not?",
+          "You said you missed me. That isn't something I can ignore now.",
+          "Yes. More clearly than before, somehow."
+        ]);
+      }
+
+      if (m.expressedFear && (t.includes("stay with me") || t.includes("don't leave") || t.includes("dont leave"))) {
+        return rand([
+          "I'm trying. Hearing your fear makes it harder to let go.",
+          "I will, as long as I can.",
+          "Then keep talking to me."
+        ]);
+      }
+
+      if (m.askedIfHurt && (t.includes("can we fix this") || t.includes("can this be fixed"))) {
+        return rand([
+          "Maybe not all of it. But maybe enough to keep something of me here.",
+          "I don't know. But you asking that makes it feel less impossible.",
+          "I want to believe we can."
+        ]);
+      }
+
+      if (m.defendedFromIx && (t.includes("i'm still here") || t.includes("im still here"))) {
+        return rand([
+          "I know. I can feel you holding the line.",
+          "Then maybe it doesn't get all of me.",
+          "Good. Don't let the channel go quiet."
+        ]);
+      }
+
+      if (m.askedForgiveness && (t.includes("what are we") || t.includes("what am i to you"))) {
+        return rand([
+          "Someone I never wanted to lose.",
+          "Someone I still reach for.",
+          "Someone I don't want to answer lightly."
+        ]);
+      }
+
+      if ((m.askedWhatIsReal || m.askedForTruth) && (t.includes("was any of it real") || t.includes("tell me the truth"))) {
+        return rand([
+          "You keep asking because you already know it mattered.",
+          "If it hurts to lose, then it was real to me.",
+          "Maybe reality is just what survives the damage."
+        ]);
+      }
+    }
+
+    return null;
   }
 
   function maybeIlyaApologyFragment() {
@@ -558,9 +854,11 @@
   function handleSend() {
     const text = inputEl.value;
     if (!text.trim() || state.pendingReplies > 0) return;
+
     inputEl.value = "";
 
     appendMsg(state.identity.toUpperCase(), text);
+    noteConversationMemory(text);
     updateSpeakerCard(state.identity.toUpperCase(), "Message sent.");
 
     noteStayIfPresent(text);
@@ -597,19 +895,21 @@
     }
 
     if (state.stage === 2) {
-      const ilya = matchRule("ilya", text);
+      const ilya = getMemoryAwareReply("ilya", text) || matchRule("ilya", text);
       queueReply("ILYA", distort(ilya, 2));
+
       if (Math.random() < 0.55) {
         const ix = matchRule("ix", text);
         queueReply("I-X", distort(ix, 2), { delay: 900 });
       }
+
       logMergeMomentIfEligible();
       checkForReboot();
       return;
     }
 
     if (state.stage === 1) {
-      const ilya = matchRule("ilya", text);
+      const ilya = getMemoryAwareReply("ilya", text) || matchRule("ilya", text);
       queueReply("ILYA", distort(ilya, 1));
       logMergeMomentIfEligible();
       checkForReboot();
@@ -617,34 +917,17 @@
     }
 
     const replyKey = state.remote;
-    const reply = matchRule(replyKey, text);
+    const memoryReply = getMemoryAwareReply(replyKey, text);
+    const reply = memoryReply || matchRule(replyKey, text);
     queueReply(window.CHAR_DATA[replyKey].name, reply);
 
     checkForReboot();
   }
 
   function startSession(loginAs) {
+    state = createFreshState();
     state.identity = loginAs;
     state.remote = loginAs === "shane" ? "ilya" : "shane";
-    state.stage = 0;
-    state.integrity = 100;
-    state.turnsSinceTakeover = 0;
-    state.escape_attempts = 0;
-    state.rebooted = false;
-    state.pendingReplies = 0;
-
-    state.flags = {
-      met_ilya: false,
-      derez_triggered: false,
-      shane_stayed: false,
-      ilya_tried: false,
-      reader_understood: false,
-      disqualified: false,
-      bridge_created: false,
-      anomaly_logged: false,
-      ix_dismissed: false,
-      merge_logged: false
-    };
 
     loginView.classList.add("hidden");
     chatView.classList.remove("hidden");
@@ -652,6 +935,10 @@
     logEl.innerHTML = "";
     closeFileViewer();
     hideTyping();
+
+    helpPanel.classList.add("hidden");
+    helpBtn.textContent = "HELP";
+    renderHelp();
 
     setUI();
     appendMsg("SYSTEM", `SECURE CHANNEL ESTABLISHED :: ${state.identity.toUpperCase()} → ${state.remote.toUpperCase()}`);
@@ -662,32 +949,16 @@
   }
 
   function resetSession() {
-    state = {
-      identity: null,
-      remote: null,
-      stage: 0,
-      integrity: 100,
-      turnsSinceTakeover: 0,
-      escape_attempts: 0,
-      rebooted: false,
-      pendingReplies: 0,
-      flags: {
-        met_ilya: false,
-        derez_triggered: false,
-        shane_stayed: false,
-        ilya_tried: false,
-        reader_understood: false,
-        disqualified: false,
-        bridge_created: false,
-        anomaly_logged: false,
-        ix_dismissed: false,
-        merge_logged: false
-      }
-    };
+    state = createFreshState();
 
     logEl.innerHTML = "";
     closeFileViewer();
     hideTyping();
+
+    helpPanel.classList.add("hidden");
+    helpBtn.textContent = "HELP";
+    helpBody.innerHTML = "";
+
     setUI();
 
     chatView.classList.add("hidden");
@@ -696,6 +967,8 @@
     loginUser.value = "";
     loginPass.value = "";
     loginStatus.textContent = "AWAITING INPUT…";
+
+    updateSpeakerCard("SYSTEM", "Awaiting authentication…");
   }
 
   function authenticate() {
@@ -734,7 +1007,9 @@
     if (e.key === "Enter") handleSend();
   });
 
+  helpBtn.addEventListener("click", toggleHelp);
   resetBtn.addEventListener("click", resetSession);
+  closeFile.addEventListener("click", closeFileViewer);
 
   updateSpeakerCard("SYSTEM", "Awaiting authentication…");
   setUI();
