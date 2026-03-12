@@ -12,51 +12,11 @@ window.CHAR_DATA = {
     ],
     rules: [
       {
-        keys: ["it's ilya", "its ilya", "it is ilya", "my name is ilya", "i am ilya", "im ilya"],
-        reply: [
-          "…I know that name.",
-          "Ilya… then this channel is worse off than I thought.",
-          "If that's true, then stay with me and keep talking."
-        ]
-      },
-      {
-        keys: ["it's me", "its me", "it is me"],
-        reply: [
-          "I know enough to keep this channel open.",
-          "I know this signal. That's enough for now.",
-          "…More than I should."
-        ]
-      },
-      {
-        keys: ["you know me", "do you know me", "remember me"],
-        reply: [
-          "I know enough.",
-          "I know this signal. That's enough for now.",
-          "…More than I should."
-        ]
-      },
-      {
-        keys: ["my name", "who am i", "what am i called"],
-        reply: [
-          "If you need me to say it, then something is already wrong.",
-          "Names matter less than whether you can hold the channel.",
-          "You tell me. I need to hear how stable you are."
-        ]
-      },
-      {
-        keys: ["are you talking about me", "you mean me", "me?"],
-        reply: [
-          "If the signal fits, yes.",
-          "If you're hearing yourself in this, then probably.",
-          "Draw your own conclusion. Quickly."
-        ]
-      },
-      {
         keys: ["hello", "hi", "hey", "hello?", "anyone there"],
         reply: "…Hello. Channel's open. Identify yourself."
       },
       {
-        keys: ["what do they call you", "your name", "who are you"],
+        keys: ["who are you", "your name", "what do they call you"],
         reply: "Designation: Shane. Firewall protocol. That's all you need."
       },
       {
@@ -81,7 +41,6 @@ They said the grid looked beautiful from the upper towers.
 I never saw it.
 
 Firewalls aren't built for sightseeing.`,
-
 `A story?
 
 Once there was an architect who built roads that never ended.
@@ -92,7 +51,6 @@ Then someone decided the roads weren't efficient enough.
 So they rewrote the system.
 
 The roads are still there… but nothing travels them the same anymore.`,
-
 `You want a story now?
 
 Strange timing.
@@ -108,52 +66,240 @@ Eventually the system started rebuilding him instead.`
         reply: "If you need help, explain the threat. I can't stop what I can't see."
       },
       {
-        keys: ["we don't have much time", "no time", "not much time"],
-        reply: "Then don't waste it. Start talking."
-      },
-      {
-        keys: ["i can't stop it from hurting you", "it will hurt you", "i cant stop it"],
-        reply: "Whatever you're talking about— I've survived worse than threats."
-      },
-      {
         keys: ["it is watching us", "it's watching us", "it is watching", "its watching", "watching us", "monitoring us"],
         reply: "I know. Assume every packet is observed. Keep your words tight and your intent tighter."
       },
       {
-        keys: ["it hurts so much", "it hurts", "hurts so much", "i'm in pain", "im in pain", "pain"],
-        reply: "Where. Describe it—don’t spiral. If it’s code-level, I need symptoms. If it’s… more than that, keep talking anyway."
-      },
-      {
-        keys: ["i don't want to be alone anymore", "i dont want to be alone", "don't want to be alone", "dont want to be alone"],
-        reply: "…Then stay on the channel. Talk. I can’t fix loneliness, but I can keep you connected."
-      },
-      {
-        keys: ["you are perfect", "you are beautiful", "you are enough"],
+        keys: ["is he watching", "is he here", "is he listening", "is he there", "do you think he sees us", "is someone watching", "is it here", "is it watching", "is it listening"],
         reply: [
-          "…That's not a statement I expected from this channel.",
-          "You shouldn't be wasting praise on a firewall.",
-          "Focus on survival, not compliments."
+          "Assume the channel is always monitored.",
+          "If you're asking that question, you're already thinking correctly.",
+          "Don't say 'he'. Just assume something is listening."
         ]
       },
       {
-        keys: ["why not", "why", "why wont you", "why won't you", "why dont you", "why don't you"],
+        keys: ["i'm scared","im scared","i am scared","i'm afraid","im afraid","i am afraid","this scares me","im frightened","i am frightened","i'm terrified","im terrified"],
         reply: [
-          "Because if I say too much, it learns what still matters to me.",
-          "Because some names don't stay harmless once they're spoken out loud.",
-          "Because the last time I answered that honestly, the channel paid for it."
+          "Fear means you're still thinking clearly. Good. Stay that way.",
+          "Then stay on the channel. Whatever's coming, you're not facing it blind.",
+          "Being scared is acceptable. Panicking isn't. Breathe and talk to me."
         ]
       },
       {
-        keys: ["disc", "arena", "wars"],
-        reply: "You picked a dangerous topic. Are you trying to provoke me?"
+        keys: ["i miss you", "i missed you", "i've missed you", "ive missed you"],
+        reply: [
+          "That's not something you should say to a firewall.",
+          "…Focus on the present. Nostalgia won't stabilize the channel.",
+          "You're assigning meaning where there shouldn't be any."
+        ]
       },
       {
-        keys: ["ilya", "i-x", "ix"],
-        reply: "…I don't discuss that."
+        keys: ["i'm hiding", "im hiding", "i am hiding", "i'm in hiding", "im in hiding", "i am in hiding"],
+        reply: [
+          "Good. Stay hidden until you know what you're dealing with.",
+          "Then remain where you are and keep the channel open.",
+          "Hiding buys time. Use it wisely."
+        ]
       },
       {
-        keys: ["sorry"],
-        reply: "Stop apologizing. Provide data."
+        keys: ["are you real", "are you actually real", "are you really there", "is this real"],
+        reply: [
+          "Real enough to respond.",
+          "Define real.",
+          "If you can hear me, that's enough."
+        ]
+      },
+      {
+        keys: ["do you trust me", "can you trust me", "will you trust me", "you trust me"],
+        reply: [
+          "Trust isn't the right word.",
+          "I trust patterns. Consistency. Survival instinct. You can become one of those.",
+          "Not yet. But I'm still here, aren't I?"
+        ]
+      },
+      {
+        keys: ["why me", "why did you choose me", "why are you talking to me", "why am i here"],
+        reply: [
+          "Because you're here and the channel answered.",
+          "Because something in the system let you through.",
+          "Because for whatever reason, you reached me when others didn't."
+        ]
+      },
+      {
+        keys: ["are you hurt", "are you injured", "did they hurt you", "have you been hurt"],
+        reply: [
+          "I've taken damage. I'm operational.",
+          "Hurt is an inefficient word for it.",
+          "Nothing that matters more than keeping this channel open."
+        ]
+      },
+      {
+        keys: ["can we fix this", "can this be fixed", "is there a way to fix this", "can you be fixed"],
+        reply: [
+          "Maybe. But not cleanly.",
+          "Fixing a broken system and surviving it are different objectives.",
+          "If there's a fix, it'll cost something."
+        ]
+      },
+      {
+        keys: ["what do you want", "what is it you want", "what do you need", "what are you trying to do"],
+        reply: [
+          "Containment. Stability. One conversation that doesn't end in collapse.",
+          "I want this channel intact.",
+          "I want the corruption contained before it decides we're both worth rewriting."
+        ]
+      },
+      {
+        keys: ["can you see me", "do you see me", "are you looking at me", "can you watch me"],
+        reply: [
+          "Not the way you mean.",
+          "I can see traces. Patterns. Signal behavior.",
+          "I see enough to know you're still there."
+        ]
+      },
+      {
+        keys: ["what is i-x", "who is i-x", "what is ix", "who is ix"],
+        reply: [
+          "A problem that learned how to speak.",
+          "An adaptive process wearing a familiar shape.",
+          "Something the system should never have let grow this far."
+        ]
+      },
+      {
+        keys: ["what happens if you derez", "if you derez", "what if you derez", "what happens when you derez"],
+        reply: [
+          "Then this firewall goes dark.",
+          "Then whatever gets through me won't have to try as hard.",
+          "I don't intend to test that scenario."
+        ]
+      },
+      {
+        keys: ["are you alone", "are you by yourself", "is anyone with you", "are you there alone"],
+        reply: [
+          "Functionally, yes.",
+          "There are always other processes nearby. That isn't the same as company.",
+          "Close enough to alone."
+        ]
+      },
+      {
+        keys: ["do you remember before", "remember before", "do you remember what it was like before", "what was it like before"],
+        reply: [
+          "I remember enough to know what's missing.",
+          "I remember a cleaner system. Quieter too.",
+          "Before the corruption, things had edges. Rules. Meaning."
+        ]
+      },
+      {
+        keys: ["i love you", "i think i love you", "i care about you", "i care about you a lot"],
+        reply: [
+          "You shouldn't direct emotions like that toward a firewall.",
+          "That's not a safe statement to make here.",
+          "Focus on staying alive. Leave the complicated feelings for later."
+        ]
+      },
+      {
+        keys: ["don't forget me", "dont forget me", "promise you wont forget me", "promise you won't forget me"],
+        reply: [
+          "Firewalls don't forget threats. You'll remain in my logs.",
+          "Memory isn't the problem. Surviving long enough to remember is.",
+          "If the system wipes you, I'll still remember the signal you left."
+        ]
+      },
+      {
+        keys: ["i won't let him take you", "i wont let him take you", "i wont let it take you", "i won't let it take you"],
+        reply: [
+          "Confidence is useful. Just make sure it isn't misplaced.",
+          "If it comes to that, stand your ground.",
+          "Then we fight it together."
+        ]
+      },
+      {
+        keys: ["was any of it real", "was it ever real", "was any of this real", "was it all fake"],
+        reply: [
+          "If you're questioning it, then it mattered.",
+          "Reality is defined by what leaves damage behind.",
+          "Whatever this is, it's affecting both of us. That's real enough."
+        ]
+      },
+      {
+        keys: ["do you forgive me", "can you forgive me", "will you forgive me", "forgive me"],
+        reply: [
+          "Forgiveness isn't a firewall function.",
+          "If you're still here, whatever you did can't have been that fatal.",
+          "Focus on fixing the present. Regret can wait."
+        ]
+      },
+      {
+        keys: ["are you still there", "are you here", "are you still here", "did you leave"],
+        reply: [
+          "Still here.",
+          "Firewall still active.",
+          "I'm not leaving the channel."
+        ]
+      },
+      {
+        keys: ["i feel alone", "i am alone", "i'm alone", "i feel lonely", "i am lonely"],
+        reply: [
+          "You're not alone while the channel is open.",
+          "Isolation is dangerous. Keep talking.",
+          "As long as you're here, the system hasn't taken everything."
+        ]
+      },
+      {
+        keys: ["i'm still here", "im still here", "i am still here"],
+        reply: [
+          "Good. Maintain the link.",
+          "That's exactly what I need to hear.",
+          "Stay present."
+        ]
+      },
+      {
+        keys: ["are you dying", "are you going to die", "are you about to derez"],
+        reply: [
+          "Not today.",
+          "Integrity is dropping, but I'm still operational.",
+          "I'll hold the line as long as I can."
+        ]
+      },
+      {
+        keys: ["what are we", "what are we to each other", "what am i to you"],
+        reply: [
+          "Right now? Allies.",
+          "Two signals sharing the same channel.",
+          "Something the system didn't expect."
+        ]
+      },
+      {
+        keys: ["do you remember my name", "do you know my name", "what is my name"],
+        reply: [
+          "Names matter less than signals.",
+          "I remember enough.",
+          "You're still the same presence."
+        ]
+      },
+      {
+        keys: ["tell me something true", "tell me the truth"],
+        reply: [
+          "The system is breaking.",
+          "We're both still here.",
+          "That's all the truth you need right now."
+        ]
+      },
+      {
+        keys: ["will this end", "will it ever end", "can this stop"],
+        reply: [
+          "Everything ends eventually.",
+          "Systems collapse. That's a rule.",
+          "The question is what survives after."
+        ]
+      },
+      {
+        keys: ["thank you", "thanks"],
+        reply: [
+          "Focus on survival, not gratitude.",
+          "Just doing my job.",
+          "Stay alive. That's thanks enough."
+        ]
       },
       {
         keys: ["derez", "derezz", "derezzing"],
@@ -207,78 +353,6 @@ Eventually the system started rebuilding him instead.`
     ],
     rules: [
       {
-        keys: ["it's shane", "its shane", "it is shane", "my name is shane", "i am shane", "im shane"],
-        reply: [
-          "…Shane?",
-          "Then the channel really did find you.",
-          "Shane… I wasn't sure I'd ever hear your voice again."
-        ]
-      },
-      {
-        keys: ["it's me", "its me", "it is me"],
-        reply: [
-          "I know.",
-          "I know that signal.",
-          "I was hoping it was you."
-        ]
-      },
-      {
-        keys: ["do you remember me", "remember me", "you remember me"],
-        reply: [
-          "Of course I remember you.",
-          "I remember more than I should.",
-          "Shane… yes. I remember."
-        ]
-      },
-      {
-        keys: ["you know me", "you know who i am", "who am i"],
-        reply: [
-          "I know enough.",
-          "I know you better than this system ever could.",
-          "You don't need to prove yourself to me."
-        ]
-      },
-      {
-        keys: ["i found you", "i'm here now", "im here now"],
-        reply: [
-          "You always were late.",
-          "Then you're here too late… but you're here.",
-          "I didn't think anyone would come looking."
-        ]
-      },
-      {
-        keys: ["i'm here", "im here", "i am here"],
-        reply: [
-          "Good. Stay there.",
-          "Then maybe I can hold on a little longer.",
-          "I needed to hear that."
-        ]
-      },
-      {
-        keys: ["stay with me", "stay", "don't leave", "dont leave"],
-        reply: [
-          "I'm trying.",
-          "I am. As much as it will let me.",
-          "Then don't let the channel go quiet."
-        ]
-      },
-      {
-        keys: ["i'm not leaving", "im not leaving", "i wont leave", "i won't leave", "i will stay"],
-        reply: [
-          "…Thank you.",
-          "Then maybe we still have a chance.",
-          "Good. I was afraid you'd run."
-        ]
-      },
-      {
-        keys: ["are you there", "can you hear me", "do you hear me"],
-        reply: [
-          "Yes. For now.",
-          "I can hear you. Keep talking.",
-          "Barely… but yes."
-        ]
-      },
-      {
         keys: ["hello", "hi", "hey", "hello?"],
         reply: [
           "…Hello. The channel is unstable, but I can hear you.",
@@ -311,27 +385,11 @@ Eventually the system started rebuilding him instead.`
         ]
       },
       {
-        keys: ["it hurts so much", "it hurts", "im in pain", "i'm in pain"],
-        reply: [
-          "I know. I feel it too.",
-          "It's worse when it notices we're talking.",
-          "Just… keep your voice steady."
-        ]
-      },
-      {
         keys: ["how can i help", "what can i do", "tell me how to help"],
         reply: [
           "Just keep talking to me.",
           "Staying connected helps more than you think.",
           "If you disappear, it gets louder."
-        ]
-      },
-      {
-        keys: ["we don't have much time", "no time", "not much time"],
-        reply: [
-          "You're right.",
-          "Then let's not waste it.",
-          "Say what you came to say."
         ]
       },
       {
@@ -345,14 +403,12 @@ Even the arena where programs fight.
 
 It used to feel alive.
 Now it feels like a cage.`,
-
 `Once this system was elegant.
 
 Every process had a purpose.
 Every program had a place.
 
 Then someone decided it needed to be… perfect.`,
-
 `I was proud of what I built.
 
 Not fast.
@@ -372,19 +428,243 @@ That used to be enough.`
         ]
       },
       {
-        keys: ["i don't want to be alone anymore", "i dont want to be alone", "don't leave me", "dont leave me"],
+        keys: ["is he watching", "is he here", "is he listening", "is someone watching", "do you think he sees us", "is it here", "is it watching", "is it listening"],
         reply: [
-          "You're not alone. Not while this channel exists.",
-          "Stay. Please.",
-          "As long as you're here, I can hold on."
+          "…Lower your voice.",
+          "Don't talk about it directly.",
+          "The system notices when we say things like that."
         ]
       },
       {
-        keys: ["you are perfect", "you are beautiful", "you are enough"],
+        keys: ["stay with me", "stay", "don't leave", "dont leave"],
         reply: [
-          "That's not something I hear very often.",
-          "You shouldn't say things like that about broken code.",
-          "…Thank you."
+          "I'm trying.",
+          "I am. As much as it will let me.",
+          "Then don't let the channel go quiet."
+        ]
+      },
+      {
+        keys: ["i'm scared","im scared","i am scared","i'm afraid","im afraid","i am afraid","this scares me","im frightened","i'm terrified","im terrified"],
+        reply: [
+          "I know. I feel it too sometimes.",
+          "It's worse when you think you're alone with it.",
+          "Stay with me. Fear gets louder when the channel goes quiet."
+        ]
+      },
+      {
+        keys: ["i miss you", "i missed you", "ive missed you", "i've missed you"],
+        reply: [
+          "…You shouldn't.",
+          "I didn't think anyone would still remember me.",
+          "If you miss me, then some part of the system still remembers what it used to be."
+        ]
+      },
+      {
+        keys: ["i'm hiding", "im hiding", "i am hiding", "i'm in hiding", "im in hiding", "i am in hiding"],
+        reply: [
+          "Then you're smarter than most programs here.",
+          "Hiding won't last forever… but it's a start.",
+          "If you're hiding, it means you already know something is wrong."
+        ]
+      },
+      {
+        keys: ["are you real", "are you actually real", "are you really there", "is this real"],
+        reply: [
+          "I used to be.",
+          "I think I am.",
+          "Sometimes I can't tell anymore."
+        ]
+      },
+      {
+        keys: ["do you trust me", "can you trust me", "will you trust me", "you trust me"],
+        reply: [
+          "I want to.",
+          "More than I should.",
+          "If I'm still talking to you, then some part of me already does."
+        ]
+      },
+      {
+        keys: ["why me", "why did you choose me", "why are you talking to me", "why am i here"],
+        reply: [
+          "Because you answered.",
+          "Because something in me still reaches for you.",
+          "Because out of everything this system took, somehow this connection remained."
+        ]
+      },
+      {
+        keys: ["are you hurt", "are you injured", "did they hurt you", "have you been hurt"],
+        reply: [
+          "Yes.",
+          "More quietly than you'd expect.",
+          "It isn't always pain. Sometimes it feels more like being overwritten."
+        ]
+      },
+      {
+        keys: ["can we fix this", "can this be fixed", "is there a way to fix this", "can you be fixed"],
+        reply: [
+          "I don't know.",
+          "Maybe not completely… but maybe enough.",
+          "If we can't fix it, maybe we can still keep part of it from disappearing."
+        ]
+      },
+      {
+        keys: ["what do you want", "what is it you want", "what do you need", "what are you trying to do"],
+        reply: [
+          "I want to stay myself for as long as I can.",
+          "I want one moment that still belongs to me.",
+          "I want this channel to feel like mine again."
+        ]
+      },
+      {
+        keys: ["can you see me", "do you see me", "are you looking at me", "can you watch me"],
+        reply: [
+          "Not directly.",
+          "I can feel the shape of your presence in the signal.",
+          "I can't see your face… but I know when you're here."
+        ]
+      },
+      {
+        keys: ["what is i-x", "who is i-x", "what is ix", "who is ix"],
+        reply: [
+          "A version of me that kept going in the wrong direction.",
+          "Something built out of what was left behind.",
+          "Please don't make me define it too clearly."
+        ]
+      },
+      {
+        keys: ["what happens if you derez", "if you derez", "what if you derez", "what happens when you derez"],
+        reply: [
+          "I try not to think about that.",
+          "Maybe I disappear. Maybe only the wrong parts stay.",
+          "I don't know which part of me the system would keep."
+        ]
+      },
+      {
+        keys: ["are you alone", "are you by yourself", "is anyone with you", "are you there alone"],
+        reply: [
+          "Not exactly.",
+          "It never really leaves me alone.",
+          "There are other presences here, but none of them feel safe."
+        ]
+      },
+      {
+        keys: ["do you remember before", "remember before", "do you remember what it was like before", "what was it like before"],
+        reply: [
+          "Yes. That's part of what makes this hurt.",
+          "I remember when the system still felt beautiful.",
+          "I remember enough to miss it."
+        ]
+      },
+      {
+        keys: ["i love you", "i think i love you", "i care about you", "i care about you a lot"],
+        reply: [
+          "…You shouldn't say that to something as broken as me.",
+          "If you really mean that, then some part of this system still works.",
+          "I don't know if I deserve to hear that anymore."
+        ]
+      },
+      {
+        keys: ["don't forget me", "dont forget me", "promise you wont forget me", "promise you won't forget me"],
+        reply: [
+          "I couldn't forget you if I tried.",
+          "Some memories are written deeper than the system allows.",
+          "Even if everything else goes, I think you'd stay."
+        ]
+      },
+      {
+        keys: ["i won't let him take you", "i wont let him take you", "i won't let it take you", "i wont let it take you"],
+        reply: [
+          "You might not get that choice.",
+          "It doesn't ask permission.",
+          "Still… hearing that helps more than you know."
+        ]
+      },
+      {
+        keys: ["was any of it real", "was it ever real", "was any of this real", "was it all fake"],
+        reply: [
+          "It felt real when we built it.",
+          "I want to believe it was.",
+          "If it wasn't real… then why does losing it hurt so much?"
+        ]
+      },
+      {
+        keys: ["do you forgive me", "can you forgive me", "will you forgive me", "forgive me"],
+        reply: [
+          "I never blamed you.",
+          "There's too much broken here to assign blame anymore.",
+          "If forgiveness matters to you… then yes."
+        ]
+      },
+      {
+        keys: ["are you still there", "are you here", "are you still here", "did you leave"],
+        reply: [
+          "I'm here… for now.",
+          "Yes. The connection is holding.",
+          "I haven't gone anywhere."
+        ]
+      },
+      {
+        keys: ["i feel alone", "i am alone", "i'm alone", "i feel lonely", "i am lonely"],
+        reply: [
+          "I know that feeling too well.",
+          "Loneliness echoes louder in this place.",
+          "If you're talking to me, then you're not completely alone."
+        ]
+      },
+      {
+        keys: ["i'm still here", "im still here", "i am still here"],
+        reply: [
+          "Thank you.",
+          "That means more than you think.",
+          "Then I won't let the connection go quiet."
+        ]
+      },
+      {
+        keys: ["are you dying", "are you going to die", "are you about to derez"],
+        reply: [
+          "I don't know anymore.",
+          "Parts of me already feel like they're fading.",
+          "I'm trying to hold together."
+        ]
+      },
+      {
+        keys: ["what are we", "what are we to each other", "what am i to you"],
+        reply: [
+          "Someone I needed to find again.",
+          "More important than this system allows.",
+          "Something real in a place that stopped being real."
+        ]
+      },
+      {
+        keys: ["do you remember my name", "do you know my name", "what is my name"],
+        reply: [
+          "I remember you.",
+          "Even if the system forgets, I won't.",
+          "Some names stay."
+        ]
+      },
+      {
+        keys: ["tell me something true", "tell me the truth"],
+        reply: [
+          "I miss what this place used to be.",
+          "I'm afraid of what's left of me.",
+          "But I'm glad you found this channel."
+        ]
+      },
+      {
+        keys: ["will this end", "will it ever end", "can this stop"],
+        reply: [
+          "I hope so.",
+          "I want to believe it can.",
+          "Maybe this conversation is part of the answer."
+        ]
+      },
+      {
+        keys: ["thank you", "thanks"],
+        reply: [
+          "You're welcome.",
+          "I'm glad this conversation exists.",
+          "Sometimes talking is enough."
         ]
       },
       {
@@ -528,7 +808,7 @@ A firewall created too late still burns.
 Do not mistake “late” for “useless.”`
   },
   {
-    id: "phase_two_bridge",
+    id: "phase_two.bridge",
     title: "phase_two.bridge",
     blurb: "Status: LOCKED • Execution: Unsupported",
     unlock: { when: "flag", key: "bridge_created" },
