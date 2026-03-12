@@ -133,6 +133,14 @@ body::before{
   animation: loginPulse 3.2s ease-in-out infinite;
 }
 
+.loginFieldGap{
+  margin-top: 12px;
+}
+
+.loginBtnWrap{
+  margin-top: 16px;
+}
+
 .loginBox .fieldLabel{
   text-align: center;
 }
@@ -143,10 +151,12 @@ body::before{
 
 .loginStatusText{
   min-height: 18px;
+  margin-top: 12px;
 }
 
 .loginHint{
   text-align: center;
+  margin-top: 14px;
 }
 
 .loginBox .btn{
@@ -209,7 +219,6 @@ body::before{
 }
 
 .hint{
-  margin-top: 12px;
   font-size: 12px;
   line-height: 1.35;
 }
