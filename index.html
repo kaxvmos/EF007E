@@ -9,7 +9,6 @@
 <body>
   <main class="shell">
 
-    <!-- LOGIN -->
     <section id="loginView" class="panel loginPanel">
       <div class="loginCenter">
         <div class="panelHeader loginHeader">
@@ -42,7 +41,6 @@
       </div>
     </section>
 
-    <!-- CHAT -->
     <section id="chatView" class="panel hidden" aria-live="polite">
       <div class="panelHeader">
         <div class="tag" id="systemTag">SYSTEM :: SECURE</div>
@@ -57,10 +55,25 @@
       </div>
 
       <div class="layout">
-
-        <!-- MAIN -->
         <div>
+          <section class="speakerCard" id="speakerCard">
+            <div class="speakerAvatarWrap">
+              <img id="speakerAvatar" class="speakerAvatar hiddenAvatar" alt="" />
+              <div id="speakerFallback" class="speakerFallback">--</div>
+            </div>
+            <div class="speakerInfo">
+              <div class="speakerLabel">ACTIVE CHANNEL</div>
+              <div class="speakerName" id="speakerName">—</div>
+              <div class="speakerSub dim smallText" id="speakerSub">Awaiting transmission…</div>
+            </div>
+          </section>
+
           <div id="log" class="log" role="log" aria-label="Chat log"></div>
+
+          <div id="typingIndicator" class="typingIndicator hidden">
+            <span class="typingName" id="typingName">REMOTE</span>
+            <span class="typingDots"><i></i><i></i><i></i></span>
+          </div>
 
           <div class="composer">
             <input id="input" class="input" type="text" autocomplete="off" placeholder="TYPE MESSAGE…" />
@@ -73,7 +86,6 @@
           </div>
         </div>
 
-        <!-- FILES -->
         <aside class="files">
           <div class="filesHeader">
             <div class="tag">FILES</div>
@@ -90,7 +102,6 @@
             <pre id="fileBody" class="fileBody">Select a file to view.</pre>
           </div>
         </aside>
-
       </div>
     </section>
   </main>
