@@ -28,6 +28,13 @@
   const fileBody = $("fileBody");
   const closeFile = $("closeFile");
 
+  const speakerAvatar = $("speakerAvatar");
+  const speakerFallback = $("speakerFallback");
+  const speakerName = $("speakerName");
+  const speakerSub = $("speakerSub");
+  const typingIndicator = $("typingIndicator");
+  const typingName = $("typingName");
+
   let state = {
     identity: null,
     remote: null,
@@ -36,6 +43,7 @@
     turnsSinceTakeover: 0,
     escape_attempts: 0,
     rebooted: false,
+    pendingReplies: 0,
     flags: {
       met_ilya: false,
       derez_triggered: false,
@@ -99,9 +107,83 @@
     return out;
   }
 
+  function getCharVisual(keyOrWho) {
+    const key = (keyOrWho || "").toLowerCase();
+    if (window.CHAR_DATA[key]) return window.CHAR_DATA[key];
+
+    const fallbackMap = {
+      shane: window.CHAR_DATA.shane,
+      ilya: window.CHAR_DATA.ilya,
+      "i-x": window.CHAR_DATA.ix,
+      ix: window.CHAR_DATA.ix
+    };
+
+    return fallbackMap[key] || null;
+  }
+
+  function makeAvatarEl(label) {
+    const visual = getCharVisual(label);
+    const wrap = document.createElement("div");
+    wrap.className = "msgAvatar";
+
+    if (visual?.avatar) {
+      const img = document.createElement("img");
+      img.src = visual.avatar;
+      img.alt = visual.avatarAlt || `${visual.name} avatar`;
+      img.loading = "lazy";
+      img.addEventListener("error", () => {
+        wrap.innerHTML = `<div class="msgAvatarFallback">${visual?.short || label.slice(0, 2).toUpperCase()}</div>`;
+      });
+      wrap.appendChild(img);
+      return wrap;
+    }
+
+    wrap.innerHTML = `<div class="msgAvatarFallback">${visual?.short || label.slice(0, 2).toUpperCase()}</div>`;
+    return wrap;
+  }
+
+  function updateSpeakerCard(label, subtitle) {
+    const visual = getCharVisual(label);
+
+    speakerName.textContent = visual?.name || label || "—";
+    speakerSub.textContent = subtitle || "Awaiting transmission…";
+
+    if (visual?.avatar) {
+      speakerAvatar.src = visual.avatar;
+      speakerAvatar.alt = visual.avatarAlt || `${visual.name} avatar`;
+      speakerAvatar.classList.remove("hiddenAvatar");
+      speakerFallback.style.display = "none";
+
+      speakerAvatar.onerror = () => {
+        speakerAvatar.classList.add("hiddenAvatar");
+        speakerFallback.style.display = "grid";
+        speakerFallback.textContent = visual?.short || "--";
+      };
+    } else {
+      speakerAvatar.classList.add("hiddenAvatar");
+      speakerFallback.style.display = "grid";
+      speakerFallback.textContent = visual?.short || "--";
+    }
+  }
+
+  function showTyping(label) {
+    typingName.textContent = label;
+    typingIndicator.classList.remove("hidden");
+    updateSpeakerCard(label, "Transmission incoming…");
+  }
+
+  function hideTyping() {
+    typingIndicator.classList.add("hidden");
+  }
+
   function appendMsg(who, text) {
     const wrap = document.createElement("div");
     wrap.className = "msg";
+
+    const avatar = makeAvatarEl(who);
+
+    const main = document.createElement("div");
+    main.className = "msgMain";
 
     const meta = document.createElement("div");
     meta.className = "meta";
@@ -123,18 +205,23 @@
     clean.textContent = text;
     holder.appendChild(clean);
 
-    if (state.stage > 0) {
+    if (state.stage > 0 && who !== state.identity?.toUpperCase() && who !== "SYSTEM" && who !== "—") {
       holder.classList.add("glitchText");
       holder.dataset.glitch = makeGibberishFrom(text, state.stage);
     }
 
     body.appendChild(holder);
 
-    wrap.appendChild(meta);
-    wrap.appendChild(body);
+    main.appendChild(meta);
+    main.appendChild(body);
+
+    wrap.appendChild(avatar);
+    wrap.appendChild(main);
 
     logEl.appendChild(wrap);
     logEl.scrollTop = logEl.scrollHeight;
+
+    updateSpeakerCard(who, "Last transmission received.");
   }
 
   function matchRule(characterKey, userText) {
@@ -173,16 +260,16 @@
 
     if (state.stage === 0) {
       systemTag.textContent = "SYSTEM :: SECURE";
-      statusOut.textContent = "READY";
+      statusOut.textContent = state.pendingReplies > 0 ? "TRANSMISSION ACTIVE" : "READY";
     } else if (state.stage === 1) {
       systemTag.textContent = "SYSTEM :: DESYNC";
-      statusOut.textContent = "SIGNAL UNSTABLE";
+      statusOut.textContent = state.pendingReplies > 0 ? "SIGNAL FLUCTUATING" : "SIGNAL UNSTABLE";
     } else if (state.stage === 2) {
       systemTag.textContent = "SYSTEM :: CORRUPTION";
-      statusOut.textContent = "INTEGRITY DROPPING";
+      statusOut.textContent = state.pendingReplies > 0 ? "CORRUPTION SPREADING" : "INTEGRITY DROPPING";
     } else {
       systemTag.textContent = "SYSTEM :: COMPROMISED";
-      statusOut.textContent = "CHANNEL OVERRIDDEN";
+      statusOut.textContent = state.pendingReplies > 0 ? "OVERRIDE ACTIVE" : "CHANNEL OVERRIDDEN";
     }
 
     setBodyStageClass();
@@ -286,8 +373,8 @@
 
     if (Math.random() < 0.35) {
       state.flags.ilya_tried = true;
-      appendMsg("ILYA", distort("Shane— I’m s—", Math.min(state.stage, 3)));
-      appendMsg("SYSTEM", "INTERRUPTION SUPPRESSED");
+      queueReply("ILYA", distort("Shane— I’m s—", Math.min(state.stage, 3)));
+      queueReply("SYSTEM", "INTERRUPTION SUPPRESSED", { delay: 420 });
     }
   }
 
@@ -296,7 +383,7 @@
     const pool = window.CHAR_DATA[characterKey]?.stageLines?.[stageKey];
     if (pool && Math.random() < 0.25) {
       const line = rand(pool);
-      appendMsg(whoLabel, useDistort ? distort(line, state.stage) : line);
+      queueReply(whoLabel, useDistort ? distort(line, state.stage) : line, { delay: 550 });
     }
   }
 
@@ -320,7 +407,7 @@
       "SYSTEM :: STABILITY MODEL OUT OF RANGE"
     ];
 
-    appendMsg("SYSTEM", rand(state.stage === 2 ? logs2 : logs3));
+    queueReply("SYSTEM", rand(state.stage === 2 ? logs2 : logs3), { delay: 380 });
   }
 
   function maybeIxEnvLine() {
@@ -328,7 +415,7 @@
     if (Math.random() > 0.45) return;
     const env = window.CHAR_DATA.ix.envLines;
     const pool = state.stage === 2 ? env.stage2 : env.stage3;
-    appendMsg("I-X", distort(rand(pool), state.stage));
+    queueReply("I-X", distort(rand(pool), state.stage), { delay: 500 });
   }
 
   function derezTriggered(userText) {
@@ -352,11 +439,11 @@
 
     state.integrity = Math.max(55, state.integrity - 18);
 
-    appendMsg("SYSTEM", "KEYWORD EVENT :: DEREZ :: CHANNEL DESYNC");
-    appendMsg("SYSTEM", "ADMIN PRESENCE: ACTIVE");
-    appendMsg("ILYA", distort("…No—", 1));
-    appendMsg("SYSTEM", "ERR-IX-113 :: DATA CORRUPTION DETECTED");
-    appendMsg("I-X", distort(rand(window.CHAR_DATA.ix.openers), 1));
+    queueReply("SYSTEM", "KEYWORD EVENT :: DEREZ :: CHANNEL DESYNC", { delay: 120 });
+    queueReply("SYSTEM", "ADMIN PRESENCE: ACTIVE", { delay: 280 });
+    queueReply("ILYA", distort("…No—", 1), { delay: 520 });
+    queueReply("SYSTEM", "ERR-IX-113 :: DATA CORRUPTION DETECTED", { delay: 740 });
+    queueReply("I-X", distort(rand(window.CHAR_DATA.ix.openers), 1), { delay: 980 });
   }
 
   function maybeAdvanceStagesAndRewrite() {
@@ -369,12 +456,12 @@
 
     if (state.stage === 1 && state.turnsSinceTakeover >= 3) {
       escalateTo(2);
-      appendMsg("SYSTEM", "ESCALATION :: CORRUPTION SPREADING");
-      appendMsg("I-X", distort("Shifting from host control to environmental rewrite.", 2));
+      queueReply("SYSTEM", "ESCALATION :: CORRUPTION SPREADING", { delay: 180 });
+      queueReply("I-X", distort("Shifting from host control to environmental rewrite.", 2), { delay: 420 });
     } else if (state.stage === 2 && state.turnsSinceTakeover >= 6) {
       escalateTo(3);
-      appendMsg("SYSTEM", "OVERRIDE :: CHANNEL ACQUIRED");
-      appendMsg("I-X", distort("Root environment prioritized. Host suppression reduced.", 3));
+      queueReply("SYSTEM", "OVERRIDE :: CHANNEL ACQUIRED", { delay: 180 });
+      queueReply("I-X", distort("Root environment prioritized. Host suppression reduced.", 3), { delay: 420 });
     }
 
     maybeSystemOsLog();
@@ -396,15 +483,15 @@
 
     state.flags.merge_logged = true;
 
-    appendMsg("SYSTEM", "SYSTEM FAILURE IMMINENT");
-    appendMsg("SYSTEM", "RESIDUAL THREADS COLLIDING");
-    appendMsg("SYSTEM", "ILYA + SHANE :: MUTUAL OVERRIDE");
-    appendMsg("SYSTEM", "MERGE ATTEMPT :: IN PROGRESS");
-    appendMsg("SYSTEM", "FILE CREATED :: phase_two.bridge");
-    appendMsg("—", "Stay.");
+    queueReply("SYSTEM", "SYSTEM FAILURE IMMINENT", { delay: 120 });
+    queueReply("SYSTEM", "RESIDUAL THREADS COLLIDING", { delay: 280 });
+    queueReply("SYSTEM", "ILYA + SHANE :: MUTUAL OVERRIDE", { delay: 430 });
+    queueReply("SYSTEM", "MERGE ATTEMPT :: IN PROGRESS", { delay: 610 });
+    queueReply("SYSTEM", "FILE CREATED :: phase_two.bridge", { delay: 800 });
+    queueReply("—", "Stay.", { delay: 1040 });
 
     if (state.flags.shane_stayed) {
-      appendMsg("—", "I'm here.");
+      queueReply("—", "I'm here.", { delay: 1260 });
     }
   }
 
@@ -424,29 +511,57 @@
     state.stage = 0;
     state.integrity = 100;
 
-    logEl.innerHTML = "";
-    closeFileViewer();
+    setTimeout(() => {
+      logEl.innerHTML = "";
+      closeFileViewer();
 
-    appendMsg("SYSTEM", "Integrity 100%");
-    appendMsg("SYSTEM", "Optimization routines active.");
-    appendMsg("SYSTEM", "Anomaly detected.");
-    appendMsg("SYSTEM", "Classification pending.");
-    state.flags.anomaly_logged = true;
+      appendMsg("SYSTEM", "Integrity 100%");
+      appendMsg("SYSTEM", "Optimization routines active.");
+      appendMsg("SYSTEM", "Anomaly detected.");
+      appendMsg("SYSTEM", "Classification pending.");
+      state.flags.anomaly_logged = true;
 
-    if (state.flags.bridge_created && !state.flags.ix_dismissed) {
-      appendMsg("I-X", "Non-executable structure detected. No operational impact. Ignoring.");
-      state.flags.ix_dismissed = true;
-    }
+      if (state.flags.bridge_created && !state.flags.ix_dismissed) {
+        appendMsg("I-X", "Non-executable structure detected. No operational impact. Ignoring.");
+        state.flags.ix_dismissed = true;
+      }
 
+      setUI();
+    }, 1400);
+  }
+
+  function computeDelay(who, text, extra = 0) {
+    if (who === "SYSTEM" || who === "—") return 220 + extra;
+
+    const base = who === "I-X" ? 420 : 700;
+    const perChar = who === "I-X" ? 8 : 16;
+    const len = Math.min((text || "").length, 160);
+
+    return Math.min(base + (len * perChar) + extra, 2600);
+  }
+
+  function queueReply(who, text, opts = {}) {
+    const delay = opts.delay ?? computeDelay(who, text);
+    state.pendingReplies += 1;
     setUI();
+
+    if (who !== "SYSTEM" && who !== "—") showTyping(who);
+
+    setTimeout(() => {
+      appendMsg(who, text);
+      state.pendingReplies = Math.max(0, state.pendingReplies - 1);
+      if (state.pendingReplies === 0) hideTyping();
+      setUI();
+    }, delay);
   }
 
   function handleSend() {
     const text = inputEl.value;
-    if (!text.trim()) return;
+    if (!text.trim() || state.pendingReplies > 0) return;
     inputEl.value = "";
 
     appendMsg(state.identity.toUpperCase(), text);
+    updateSpeakerCard(state.identity.toUpperCase(), "Message sent.");
 
     noteStayIfPresent(text);
     noteEscapePressure(text);
@@ -475,7 +590,7 @@
 
     if (state.stage === 3) {
       const reply = matchRule("ix", text);
-      appendMsg("I-X", distort(reply, 3));
+      queueReply("I-X", distort(reply, 3));
       logMergeMomentIfEligible();
       checkForReboot();
       return;
@@ -483,10 +598,10 @@
 
     if (state.stage === 2) {
       const ilya = matchRule("ilya", text);
-      appendMsg("ILYA", distort(ilya, 2));
+      queueReply("ILYA", distort(ilya, 2));
       if (Math.random() < 0.55) {
         const ix = matchRule("ix", text);
-        appendMsg("I-X", distort(ix, 2));
+        queueReply("I-X", distort(ix, 2), { delay: 900 });
       }
       logMergeMomentIfEligible();
       checkForReboot();
@@ -495,7 +610,7 @@
 
     if (state.stage === 1) {
       const ilya = matchRule("ilya", text);
-      appendMsg("ILYA", distort(ilya, 1));
+      queueReply("ILYA", distort(ilya, 1));
       logMergeMomentIfEligible();
       checkForReboot();
       return;
@@ -503,7 +618,7 @@
 
     const replyKey = state.remote;
     const reply = matchRule(replyKey, text);
-    appendMsg(window.CHAR_DATA[replyKey].name, reply);
+    queueReply(window.CHAR_DATA[replyKey].name, reply);
 
     checkForReboot();
   }
@@ -516,6 +631,7 @@
     state.turnsSinceTakeover = 0;
     state.escape_attempts = 0;
     state.rebooted = false;
+    state.pendingReplies = 0;
 
     state.flags = {
       met_ilya: false,
@@ -535,11 +651,13 @@
 
     logEl.innerHTML = "";
     closeFileViewer();
+    hideTyping();
 
     setUI();
     appendMsg("SYSTEM", `SECURE CHANNEL ESTABLISHED :: ${state.identity.toUpperCase()} → ${state.remote.toUpperCase()}`);
-    appendMsg(window.CHAR_DATA[state.remote].name, rand(window.CHAR_DATA[state.remote].openers));
+    queueReply(window.CHAR_DATA[state.remote].name, rand(window.CHAR_DATA[state.remote].openers), { delay: 600 });
 
+    updateSpeakerCard(window.CHAR_DATA[state.remote].name, "Secure channel established.");
     inputEl.focus();
   }
 
@@ -552,6 +670,7 @@
       turnsSinceTakeover: 0,
       escape_attempts: 0,
       rebooted: false,
+      pendingReplies: 0,
       flags: {
         met_ilya: false,
         derez_triggered: false,
@@ -568,6 +687,7 @@
 
     logEl.innerHTML = "";
     closeFileViewer();
+    hideTyping();
     setUI();
 
     chatView.classList.add("hidden");
@@ -616,5 +736,6 @@
 
   resetBtn.addEventListener("click", resetSession);
 
+  updateSpeakerCard("SYSTEM", "Awaiting authentication…");
   setUI();
 })();
